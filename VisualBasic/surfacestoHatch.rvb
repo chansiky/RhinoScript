@@ -1,0 +1,34 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Monday, 19 September 2016 14:46:51
+
+Call Main()
+Sub Main()
+
+	Dim srfs
+	Dim srf
+	Dim crvs
+	Dim crv
+	srfs = rhino.GetObjects
+	Dim objs
+	Dim layer
+	Dim hatch	
+	
+	For Each srf In srfs
+		layer = rhino.objectlayer(srf)
+		crvs = rhino.duplicatesurfaceborder(srf)
+		crv = rhino.JoinCurves(crvs)
+		hatch = rhino.AddHatch(crv(0))
+		rhino.objectlayer hatch, layer 
+		
+		
+		rhino.DeleteObject crv(0)
+
+
+		rhino.DeleteObject srf
+
+	Next
+	
+	
+End Sub

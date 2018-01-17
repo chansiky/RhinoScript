@@ -1,0 +1,251 @@
+Option Explicit
+'20160303
+Call TextExcel()
+
+
+
+Sub TextExcel()
+	' Launch Excel
+	Dim app
+	Set app = CreateObject("Excel.Application")
+
+	Dim Maxwell
+	
+	Set Maxwell = CreateObject("Maxwell.Script.ScriptObject")
+
+	' successfully created?
+	If Maxwell Is Nothing Then
+		Rhino.Print("Unable to create Maxwell.Script.ScriptObject.")
+		Exit Sub
+	End If
+	' successfully connected?
+	If Not Maxwell.IsConnected Then
+		Rhino.Print("Unable to connect to the current Maxwell scene.")
+		Exit Sub
+	End If
+	
+	' Make it visible
+	app.Visible = True
+ 
+	' Add a new workbook
+	Dim wb
+	Set wb = app.workbooks.add
+	Dim i 'Columns
+	Dim j 'Rows
+	Dim xls_col_i
+	Dim Layer_visibility_set
+	
+	Dim arr_NamedViews
+	Dim str_View
+	Dim int_totViews
+	
+	arr_NamedViews = Rhino.NamedViews()
+	
+	int_totViews = Ubound(arr_NamedViews)
+	rhino.Print int_totViews
+	
+	For Each str_View In arr_NamedViews
+		rhino.Print str_View
+	Next
+	Layer_visibility_set = "None"
+	
+	' Fill array of values first...
+
+
+	Dim Name_List
+	Set Name_List = CreateObject("System.Collections.ArrayList")
+
+	Dim Prop_List
+	Set Prop_List = CreateObject("System.Collections.ArrayList")
+	
+	'########################################################################
+	Name_List.Add "View Name"
+	Prop_List.Add "abc"
+	
+	Name_List.Add "Render Y/N"
+	Prop_List.Add False
+	
+	Name_List.Add "Image_Scale"
+	Prop_List.Add 1
+	
+	Name_List.Add "Maxwell.Camera.XRes"
+	Prop_List.Add Maxwell.Camera.XRes
+	
+	Name_List.Add "Maxwell.Camera.YRes"
+	Prop_List.Add Maxwell.Camera.YRes
+	
+	Name_List.Add "layer visibility set"
+	Prop_List.Add Layer_visibility_set
+	'########################################################################
+	'########################################################################
+
+		
+	Name_List.Add "Maxwell.Channels.DoAlpha"
+	Prop_List.Add Maxwell.Channels.DoAlpha	
+	
+	Name_List.Add "Maxwell.Settings.Vignetting"
+	Prop_List.Add Maxwell.Settings.Vignetting	
+	'########################################################################
+	'SETTINGS PROCEDURAL SUN
+	'########################################################################
+	Name_List.Add "Maxwell.DateAndTime.DayOfYear"
+	Prop_List.Add Maxwell.DateAndTime.DayOfYear	
+	
+	Name_List.Add "Maxwell.DateAndTime.TimeOfDay"
+	Prop_List.Add Maxwell.DateAndTime.TimeOfDay	
+	
+	Name_List.Add "Maxwell.Environment.sceneRotation"
+	Prop_List.Add Maxwell.Environment.sceneRotation	
+	'########################################################################
+	'SETTINGS IBL
+	'########################################################################	
+	Name_List.Add "Maxwell.Environment.BackgroundChannel.Path"
+	Prop_List.Add Maxwell.Environment.BackgroundChannel.Path
+	
+	Name_List.Add "Maxwell.Environment.BackgroundChannel.ChannelType"
+	Prop_List.Add Maxwell.Environment.BackgroundChannel.ChannelType
+	
+	Name_List.Add "Maxwell.Environment.BackgroundChannel.Enabled"
+	Prop_List.Add Maxwell.Environment.BackgroundChannel.Enabled	
+	
+	Name_List.Add "Maxwell.Environment.BackgroundChannel.Intensity"
+	Prop_List.Add Maxwell.Environment.BackgroundChannel.Intensity	
+	
+	Name_List.Add "Maxwell.Environment.BackgroundChannel.ScaleU"
+	Prop_List.Add Maxwell.Environment.BackgroundChannel.ScaleU	
+	
+	Name_List.Add "Maxwell.Environment.BackgroundChannel.ScaleV"
+	Prop_List.Add Maxwell.Environment.BackgroundChannel.ScaleV	
+	
+	Name_List.Add "Maxwell.Environment.BackgroundChannel.OffsetU"
+	Prop_List.Add Maxwell.Environment.BackgroundChannel.OffsetU
+	
+	Name_List.Add "Maxwell.Environment.BackgroundChannel.OffsetV"
+	Prop_List.Add Maxwell.Environment.BackgroundChannel.OffsetV	
+		
+	Name_List.Add "Maxwell.Environment.BackgroundChannel.ScreenMapped"
+	Prop_List.Add Maxwell.Environment.BackgroundChannel.ScreenMapped	
+	'########################################################################	
+	Name_List.Add "Maxwell.Environment.ReflectionChannel.Path"
+	Prop_List.Add Maxwell.Environment.ReflectionChannel.Path
+	
+	Name_List.Add "Maxwell.Environment.ReflectionChannel.ChannelType"
+	Prop_List.Add Maxwell.Environment.ReflectionChannel.ChannelType
+	
+	Name_List.Add "Maxwell.Environment.ReflectionChannel.Enabled"
+	Prop_List.Add Maxwell.Environment.ReflectionChannel.Enabled	
+	
+	Name_List.Add "Maxwell.Environment.ReflectionChannel.Intensity"
+	Prop_List.Add Maxwell.Environment.ReflectionChannel.Intensity	
+	
+	Name_List.Add "Maxwell.Environment.ReflectionChannel.ScaleU"
+	Prop_List.Add Maxwell.Environment.ReflectionChannel.ScaleU	
+	
+	Name_List.Add "Maxwell.Environment.ReflectionChannel.ScaleV"
+	Prop_List.Add Maxwell.Environment.ReflectionChannel.ScaleV	
+	
+	Name_List.Add "Maxwell.Environment.ReflectionChannel.OffsetU"
+	Prop_List.Add Maxwell.Environment.ReflectionChannel.OffsetU
+	
+	Name_List.Add "Maxwell.Environment.ReflectionChannel.OffsetV"
+	Prop_List.Add Maxwell.Environment.ReflectionChannel.OffsetV	
+		
+	Name_List.Add "Maxwell.Environment.ReflectionChannel.ScreenMapped"
+	Prop_List.Add Maxwell.Environment.ReflectionChannel.ScreenMapped		
+	'########################################################################	
+	Name_List.Add "Maxwell.Environment.RefractionChannel.Path"
+	Prop_List.Add Maxwell.Environment.RefractionChannel.Path
+	
+	Name_List.Add "Maxwell.Environment.RefractionChannel.ChannelType"
+	Prop_List.Add Maxwell.Environment.RefractionChannel.ChannelType
+	
+	Name_List.Add "Maxwell.Environment.RefractionChannel.Enabled"
+	Prop_List.Add Maxwell.Environment.RefractionChannel.Enabled	
+	
+	Name_List.Add "Maxwell.Environment.RefractionChannel.Intensity"
+	Prop_List.Add Maxwell.Environment.RefractionChannel.Intensity	
+	
+	Name_List.Add "Maxwell.Environment.RefractionChannel.ScaleU"
+	Prop_List.Add Maxwell.Environment.RefractionChannel.ScaleU	
+	
+	Name_List.Add "Maxwell.Environment.RefractionChannel.ScaleV"
+	Prop_List.Add Maxwell.Environment.RefractionChannel.ScaleV	
+	
+	Name_List.Add "Maxwell.Environment.RefractionChannel.OffsetU"
+	Prop_List.Add Maxwell.Environment.RefractionChannel.OffsetU
+	
+	Name_List.Add "Maxwell.Environment.RefractionChannel.OffsetV"
+	Prop_List.Add Maxwell.Environment.RefractionChannel.OffsetV	
+		
+	Name_List.Add "Maxwell.Environment.RefractionChannel.ScreenMapped"
+	Prop_List.Add Maxwell.Environment.RefractionChannel.ScreenMapped	
+	'########################################################################	
+	Name_List.Add "Maxwell.Environment.IlluminationChannel.Path"
+	Prop_List.Add Maxwell.Environment.IlluminationChannel.Path
+	
+	Name_List.Add "Maxwell.Environment.IlluminationChannel.ChannelType"
+	Prop_List.Add Maxwell.Environment.IlluminationChannel.ChannelType
+	
+	Name_List.Add "Maxwell.Environment.IlluminationChannel.Enabled"
+	Prop_List.Add Maxwell.Environment.IlluminationChannel.Enabled	
+	
+	Name_List.Add "Maxwell.Environment.IlluminationChannel.Intensity"
+	Prop_List.Add Maxwell.Environment.IlluminationChannel.Intensity	
+	
+	Name_List.Add "Maxwell.Environment.IlluminationChannel.ScaleU"
+	Prop_List.Add Maxwell.Environment.IlluminationChannel.ScaleU	
+	
+	Name_List.Add "Maxwell.Environment.IlluminationChannel.ScaleV"
+	Prop_List.Add Maxwell.Environment.IlluminationChannel.ScaleV	
+	
+	Name_List.Add "Maxwell.Environment.IlluminationChannel.OffsetU"
+	Prop_List.Add Maxwell.Environment.IlluminationChannel.OffsetU
+	
+	Name_List.Add "Maxwell.Environment.IlluminationChannel.OffsetV"
+	Prop_List.Add Maxwell.Environment.IlluminationChannel.OffsetV	
+		
+	Name_List.Add "Maxwell.Environment.IlluminationChannel.ScreenMapped"
+	Prop_List.Add Maxwell.Environment.IlluminationChannel.ScreenMapped	
+	'########################################################################
+	'SETTINGS IBL
+	'########################################################################
+	
+	
+	
+	Dim arr()
+	ReDim arr(int_totViews+1, Name_List.Count) 'set the last number to the last number of the array"
+	
+	
+	'Adds title to first row of Excel_sheet
+	For j = 0 To Name_List.Count - 1 
+			
+		arr(0, j) = Name_List.Item(j)
+
+	Next
+
+	'Adds dummy values to all Excel rows based on Maxwell's setting	
+	For i = 0 To Ubound(arr_NamedViews)
+
+		arr(i + 1, 0) = arr_NamedViews(i)
+		
+		For j = 1 To Prop_List.Count - 1 
+			
+			arr(i + 1, j) = Prop_List.Item(j)
+
+		Next
+
+	Next
+ 
+	' Declare a range object to hold our data
+	Dim rng
+	Set rng = wb.Activesheet.Range("A1").Resize(Ubound(arr_NamedViews) + 2, Name_List.Count)
+ 
+	' Now assign them all in one shot...
+	rng.value = arr
+ 
+
+ 
+	' Give the user control of Excel
+	app.UserControl = True
+ 
+End Sub

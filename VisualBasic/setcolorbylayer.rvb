@@ -1,0 +1,20 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Wednesday, September 03, 2014 10:42:18 AM
+
+Call Main()
+Sub Main()
+	Dim strobjs
+	
+	Dim strobj
+	
+	strobjs = rhino.GetObjects(,,, True)
+	
+	
+	For Each strobj In strobjs
+		
+		rhino.ObjectColorSource strobj, 0
+		
+	Next
+End Sub

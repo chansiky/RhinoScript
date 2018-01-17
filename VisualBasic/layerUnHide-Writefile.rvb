@@ -1,0 +1,192 @@
+Option Explicit
+'Script written by Chan Youn
+
+Call Main()
+Sub Main()
+
+
+	Dim arrLayIds,strlayer,i,currLay
+	Dim strObj,strobjlay, strobjlayid
+
+	arrLayIds = rhino.layerIds
+	If isnull(arrLayIds) Then
+		Exit Sub
+	End If
+
+	SaveLayerStates
+	
+	Dim layLocked, layVisible, layID, ID
+	layID = ReadTxtFile("LayerIds")
+	layLocked = ReadTxtFile("LayerLocked")
+	layVisible = ReadTxtFile("LayerVisible")
+
+	currLay = rhino.CurrentLayer
+	currLay = rhino.LayerId(currLay)
+	
+	If isarray(arrLayIds) Then
+		'unlock layers
+		For i = 0 To Ubound(layID)
+			If currLay <> layID(i) Then
+				layVisible(i) = Not layVisible(i)
+			End If
+		Next
+		
+		'all parent layers on
+		For i = 0 To Ubound(layID)
+			Dim parentLay
+			If	layVisible(i) = True Then
+
+				If Not IsNull(rhino.ParentLayer(layID(i))) Then
+					parentLay = Rhino.ParentLayer(LayID(i))
+					parentLay = rhino.LayerId(parentLay)
+					
+				End If
+								
+			End If
+			
+		Next
+		
+
+		'Set Display to wireframe (backburned)
+		'reverse hidden, all parent layers on
+		'if visible, unlock
+		
+		'select object to unlocklayer
+		
+		'change visibility settings for chosen layer
+		'set layer states.
+		
+		
+		strObj = rhino.GetObject("select object on layer to unlock (Esc to cancel)")
+		
+		'relock layers if null
+		If isnull(strObj) Then
+			RestoreLayerStates
+			Exit Sub
+		End If
+		
+		strobjlay = rhino.ObjectLayer(strObj)
+		If isnull(strobjlay) Then
+			RestoreLayerStates
+			Exit Sub
+		End If
+	
+		strobjlay = Rhino.LayerId(strobjlay)
+		
+
+		
+		'sets boolean value of selected layer to be on.
+		For i=0 To Ubound(layID)
+			If layID(i) = strobjlay Then
+				layLocked(i) = False
+			End If
+		Next
+	
+		'sets layer locked states
+		For i = 0 To Ubound(layID)
+			Rhino.LayerLocked layID(i), layLocked(i)
+		Next
+				
+	End If
+				
+End Sub
+
+
+
+Function WriteTxtFile(ByVal strFilename, ByVal arrText)
+
+	Const ForReading = 1, ForWriting = 2
+	Dim fso, txt, WriteToFile, i
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set txt = fso.CreateTextFile(GetTempDir & "\" & strFilename & ".txt", True) 	'txt-file will be saved on the local temp direction
+
+	For i = 0 To Ubound(arrText)
+		txt.WriteLine arrText(i)
+	Next
+	
+	Set txt = fso.OpenTextFile(GetTempDir & "\" & strFilename & ".txt", ForReading)
+	WriteToFile = txt.ReadLine
+	'	rhino.Print(GetTempDir)
+End Function
+
+Function ReadTxtFile (ByVal strFilename)
+
+	Const ForReading = 1, ForAppending = 8
+	Dim fso, txt, i, linecount : linecount = 0
+	Dim arrResults : ReDim arrResults(0)
+
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set txt = fso.OpenTextFile(GetTempDir & "\" & strFilename & ".txt", ForReading) 	'txt-file will be opened from the local temp direction
+	
+	Do While txt.AtEndOfStream <> True
+		txt.skipline
+		If Not txt.AtEndOfStream Then
+			linecount = linecount + 1
+		End If
+	Loop	
+	'	rhino.Print linecount
+	Set txt = fso.OpenTextFile(GetTempDir & "\" & strFilename & ".txt", ForReading)
+	
+	For i = 0 To linecount 													' loop to store all Lines in an array (Line1 = array(0), Line2 = array(1),...)
+		arrResults(i) = txt.ReadLine
+		If Not txt.AtEndOfStream Then 
+			ReDim Preserve arrResults(Ubound(arrResults)+1)
+		End If
+	Next
+	
+	ReadTxtFile = arrResults
+	
+End Function
+
+Function GetTempDir()
+
+	Dim WScript, WshShell, objEnv
+	
+	Set WshShell = CreateObject("WScript.Shell")
+	Set objEnv = WshShell.Environment("PROCESS")
+	
+	GetTempDir = objenv("temp")
+	
+End Function
+
+Function SaveLayerStates()
+	
+	Dim i, ID
+	Dim arrLayId
+
+	arrLayID = rhino.LayerIds()
+	
+	ReDim layerLocked(Ubound(arrLayID))
+	ReDim layerVisible(Ubound(arrLayID))
+	ReDim layerNames(Ubound(arrLayID))
+	
+	Call WriteTxtFile("LayerIds", arrLayID)
+	
+	i = 0
+	For Each ID In arrLayID
+		layerlocked(i) = rhino.layerlocked(ID)
+		layerVisible(i) = rhino.layerVisible(ID)
+		layerNames(i) = rhino.layerName(ID)
+		i = i + 1
+	Next
+	Call WriteTxtFile("LayerLocked", layerlocked)
+	Call WriteTxtFile("LayerVisible", layerVisible)
+	Call WriteTxtFile("LayerNames", layerNames)
+		
+End Function
+
+Function RestoreLayerStates()
+	
+	Dim layID, layLocked, layVis, i
+			
+	layID = ReadTxtFile("LayerIds")
+	layLocked = ReadTxtFile("LayerLocked")
+	layVis = ReadTxtFile("LayerVisible")
+	
+	For i = 0 To Ubound(layID)
+		Rhino.LayerLocked layID(i), layLocked(i)
+		Rhino.LayerVisible layID(i), layVis(i)
+	Next
+
+	
+End Function

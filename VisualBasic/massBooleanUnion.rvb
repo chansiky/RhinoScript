@@ -1,0 +1,25 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Monday, 03 June 2013 11:48:57
+
+''''unfinished because I have to figure out separate code scenarios for sucess and failed unions.
+Call Main()
+Sub Main()
+
+	Dim strObjs,origCrv, dirPt,OffsetAmount, OffsetCurve
+	
+	strObjs = Rhino.GetObjects("select objects to boolean", 16,, 1)
+	If Not IsNull(strObjs) Then
+		For Each obj In strObjs
+			
+			rhino.BooleanUnion()
+			
+		Next
+	End If
+
+
+
+	
+	
+End Sub

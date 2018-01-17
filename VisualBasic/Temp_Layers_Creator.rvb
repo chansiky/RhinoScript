@@ -1,0 +1,138 @@
+'   Original readwrite Functions by Johannes Kuhnen from rhinoscript.org
+'   Modified for flexible number of lines by Chan Youn.
+
+Option Explicit
+
+
+Call Main()
+
+Sub Main()
+	Dim i
+	Dim Filename 
+	Dim Filecontents
+	Dim lngRGB
+	Dim Iterations
+	Dim maxHue, HueValue
+	
+	Iterations = 100
+	
+	For i = 0 To Iterations
+		Filename = "TempLay_Set-" & i 
+		HueValue = (360 / Iterations) * i
+		rhino.Print HueValue
+		lngRGB = Rhino.ColorHSVToRGB(Array(HueValue, 100, 100))
+		
+		WriteTxtFile Filename, i, lngRGB
+		Filecontents = ReadTxtFile(Filename)
+		rhino.Print Ubound(Filecontents)
+		'	
+	
+	Next
+	
+
+
+End Sub
+
+
+Function WriteTxtFile(ByVal strFilename, ByVal ii, ByVal color)
+
+	Const ForReading = 1, ForWriting = 2
+	Dim fso, txt, WriteToFile, i
+	
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set txt = fso.CreateTextFile("D:\SOM_Work\scripts" & "\" & strFilename & ".rvb", True) 	'txt-file will be saved on the local temp direction
+
+	txt.WriteLine "Call Main()"
+	txt.WriteLine "Sub Main()"
+	txt.WriteLine "Dim switchlay"
+	txt.WriteLine "Dim strobject, strobjectnew"
+	txt.WriteLine "Dim strlayer"
+	txt.WriteLine "Dim layerz_id"
+	txt.WriteLine "Dim lay_name"
+	txt.WriteLine "Dim lay_color"
+	
+	txt.WriteLine "layerz_id =" & ii
+	txt.WriteLine "lay_color =" & color
+	
+	txt.WriteLine "lay_name = ""Temporary::"" & layerz_id"
+	txt.WriteLine "strobject = rhino.GetObjects(""Select objects To move To layer, Or Enter To Set"",,, True)"
+	
+	txt.WriteLine "Rhino.Command ""_Enter"""
+	
+	txt.WriteLine "If Not IsArray(strobject) Then"
+	txt.WriteLine "If Not rhino.IsLayer(lay_name) Then"
+	txt.WriteLine "	strlayer = rhino.AddLayer(lay_name, lay_color)"
+	txt.WriteLine "	End If"
+	
+	txt.WriteLine "If rhino.IsLayer(lay_name) Then"
+	txt.WriteLine "	switchlay = rhino.currentlayer"
+	txt.WriteLine "If switchlay <> lay_name Then"
+	txt.WriteLine "	strobjectnew = rhino.CurrentLayer(lay_name)"
+	txt.WriteLine "	End If"
+	txt.WriteLine "	End If"
+	txt.WriteLine "End If"
+
+	txt.WriteLine "	If IsArray(strobject) Then"
+	txt.WriteLine "	If Not rhino.IsLayer(lay_name) Then"
+	txt.WriteLine "	strlayer = rhino.AddLayer(lay_name, lay_color)"
+	txt.WriteLine "	End If"
+	
+	txt.WriteLine "	If rhino.IsLayer(lay_name) Then"
+	txt.WriteLine "	strobjectnew = rhino.ObjectLayer(strobject, lay_name)"
+	txt.WriteLine "	rhino.unselectallobjects"
+	
+	txt.WriteLine "	End If"
+	txt.WriteLine "	End If"
+
+	txt.WriteLine "End Sub"
+
+	
+	Set txt = fso.OpenTextFile("D:\SOM_Work\scripts" & "\" & strFilename & ".rvb", ForReading)
+	WriteToFile = txt.ReadLine
+	rhino.Print(GetTempDir)
+End Function
+
+Function ReadTxtFile (ByVal strFilename)
+
+	Const ForReading = 1, ForAppending = 8
+	Dim fso, txt, i, linecount : linecount = 0
+	Dim arrResults : ReDim arrResults(0)
+
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set txt = fso.OpenTextFile("D:\SOM_Work\scripts" & "\" & strFilename & ".rvb", ForReading) 	
+	'txt-file will be opened from the local temp direction
+	
+	Do While txt.AtEndOfStream <> True
+		txt.skipline
+		If Not txt.AtEndOfStream Then
+			linecount = linecount + 1
+		End If
+	Loop
+	' loop to acquire number of lines in the text file
+	' rhino.Print linecount
+	
+	
+	Set txt = fso.OpenTextFile("D:\SOM_Work\scripts" & "\" & strFilename & ".rvb", ForReading)
+	
+	For i = 0 To linecount 													
+		arrResults(i) = txt.ReadLine
+		If Not txt.AtEndOfStream Then 
+			ReDim Preserve arrResults(Ubound(arrResults)+1)	
+		End If
+	Next
+	' loop to store all Lines in an array (Line1 = array(0), Line2 = array(1),...)
+
+	ReadTxtFile = arrResults
+	
+End Function
+
+Function GetTempDir()
+
+	Dim WScript, WshShell, objEnv
+	
+	Set WshShell = CreateObject("WScript.Shell")
+	Set objEnv = WshShell.Environment("PROCESS")
+	
+	GetTempDir = objenv("temp")
+	
+End Function

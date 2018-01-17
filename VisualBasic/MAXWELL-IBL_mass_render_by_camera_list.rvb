@@ -1,0 +1,343 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Wednesday, March 26, 2014 5:21:40 PM
+
+Dim ExcelUsedRows
+Call Main()
+Sub Main()
+
+	Dim Maxwell
+	Dim arr_render_num
+	Dim mx_data
+	Dim i
+	Dim j
+	
+	
+	'start layer state import for plugin
+	Dim objPlugIn
+
+	On Error Resume Next
+
+	Set objPlugIn = Rhino.GetPluginObject("Rhino Bonus Tools")
+
+	If Err Then
+
+		MsgBox Err.Description
+
+		Exit Sub
+
+	End If
+	'end layer state import for plugin
+	
+	
+	' create the ScriptObject
+	Set Maxwell = CreateObject("Maxwell.Script.ScriptObject")
+
+	' successfully created?
+	If Maxwell Is Nothing Then
+		Rhino.Print("Unable to create Maxwell.Script.ScriptObject.")
+		Exit Sub
+	End If
+	' successfully connected?
+	If Not Maxwell.IsConnected Then
+		Rhino.Print("Unable to connect to the current Maxwell scene.")
+		Exit Sub
+	End If
+	
+	
+	'''''''''''DEFINE WHICH VIEWS FROM THE EXCEL FILE TO RENDER''''''''''
+	arr_Render_num = array(0)
+	'''''''''''''DEFINE THE LOCATION OF THE EXCEL FILE'''''''''''''''''''
+	mx_data = ReadExcelFile("W:\WORKSPACE\CY\RENDER_SETTINGS\151110_Yangpu_base.xlsx")
+	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+	
+	Dim str_viewName
+	Dim mx_DoY
+	Dim mx_ToD
+	Dim mx_Alpha
+	Dim mx_Opacity
+	Dim mx_sceneRotation
+	Dim Layer_visibility_set
+	Dim str_View
+	
+	Dim Render_Layer_State_Proxy ' not really necessary?
+	
+	Dim Render_yn
+	
+	Dim str_currView
+
+	
+	Dim View_num
+	Dim render_i
+	
+
+	Dim str_data
+	'' create a render.  if Render_yn add ViewNum to arr_render_num
+	''	Render_yn = mx_data(View_num, 1)
+	For i = 0 To (ExcelUsedRows - 1)
+		
+		Render_yn = mx_data(i, 1)	
+		rhino.Print Render_yn
+		If Render_yn = "True" Then
+
+			arr_render_num(Ubound(arr_render_num)) = i	
+			ReDim Preserve arr_render_num(Ubound(arr_render_num)+1)
+			rhino.print i
+		End If
+
+	Next
+	ReDim Preserve arr_render_num(Ubound(arr_render_num)-1)	
+	
+	
+	
+	For Each View_num In arr_render_num
+
+		j = 0 
+		'viewName
+		str_viewName = mx_data(View_num, j)
+		Rhino.RestoreNamedView str_viewName		
+	
+		j = j + 1 ' Render_yes_no
+		j = j + 1 ' Image_scale
+		
+		j = j + 1
+		Maxwell.Camera.XRes = mx_data(View_num, j) * mx_data(View_num, 2)'cameraX*Scale
+	
+		j = j + 1
+		Maxwell.Camera.YRes = mx_data(View_num, j) * mx_data(View_num, 2)'cameraY*Scale
+						
+		j = j + 1 ' Layer Visibility Set
+		Layer_visibility_set = mx_data(View_num, j)
+		Layer_visibility_set = CStr(Layer_visibility_set)
+		Call objPlugIn.RestoreLayerState(Layer_visibility_set, 0)	
+		
+		j = j + 1
+		Maxwell.Channels.DoAlpha = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Settings.Vignetting = mx_data(View_num, j)
+		
+		'########################################################################
+		'SETTINGS PROCEDURAL SUN
+		'########################################################################
+		j = j + 1
+		Maxwell.DateAndTime.DayOfYear = mx_data(View_num, j)
+
+		j = j + 1	
+		Maxwell.DateAndTime.TimeOfDay = mx_data(View_num, j)
+
+		j = j + 1	
+		Maxwell.Environment.sceneRotation	
+		'########################################################################
+		'SETTINGS IBL
+		'########################################################################	
+		j = j + 1
+		Maxwell.Environment.BackgroundChannel.Path = mx_data(View_num, j)
+		rhino.Print "Test"
+		j = j + 1
+		Maxwell.Environment.BackgroundChannel.ChannelType = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.BackgroundChannel.Enabled = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.BackgroundChannel.Intensity = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.BackgroundChannel.ScaleU = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.BackgroundChannel.ScaleV = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.BackgroundChannel.OffsetU = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.BackgroundChannel.OffsetV = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.BackgroundChannel.ScreenMapped = mx_data(View_num, j)
+
+
+		'########################################################################	
+		j = j + 1
+		Maxwell.Environment.ReflectionChannel.Path = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.RefractionChannel.ChannelType = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.ReflectionChannel.Enabled = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.ReflectionChannel.Intensity = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.ReflectionChannel.ScaleU = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.ReflectionChannel.ScaleV = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.ReflectionChannel.OffsetU = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.ReflectionChannel.OffsetV = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.ReflectionChannel.ScreenMapped = mx_data(View_num, j)
+
+
+		'########################################################################	
+		j = j + 1
+		Maxwell.Environment.RefractionChannel.Path = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.RefractionChannel.ChannelType = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.RefractionChannel.Enabled = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.RefractionChannel.Intensity = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.RefractionChannel.ScaleU = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.RefractionChannel.ScaleV = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.RefractionChannel.OffsetU = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.RefractionChannel.OffsetV = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.RefractionChannel.ScreenMapped = mx_data(View_num, j)
+
+
+		'########################################################################	
+		j = j + 1
+		Maxwell.Environment.IlluminationChannel.Path = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.IlluminationChannel.ChannelType = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.IlluminationChannel.Enabled = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.IlluminationChannel.Intensity = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.IlluminationChannel.ScaleU = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.IlluminationChannel.ScaleV = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.IlluminationChannel.OffsetU = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.IlluminationChannel.OffsetV = mx_data(View_num, j)
+
+		j = j + 1
+		Maxwell.Environment.IlluminationChannel.ScreenMapped = mx_data(View_num, j)
+
+
+		
+		
+		'		Maxwell.Rendering.RenderToMxcl()
+		Maxwell.Rendering.RenderToMxs()
+		Rhino.Print str_viewName & " sent out to render"
+		Rhino.Sleep(5000)
+		
+		
+		
+		Maxwell.Camera.XRes = mx_data(View_num, 3)
+		Maxwell.Camera.YRes = mx_data(View_num, 4)
+		
+		
+	Next
+	
+	
+End Sub
+
+
+
+
+
+Function ReadExcelFile(ByVal strFile)
+ 
+	' Local variable declarations
+	Dim objExcel, objSheet, objCells
+	Dim nUsedRows, nUsedCols, nTop, nLeft, nRow, nCol
+	Dim arrSheet()
+ 
+	' Default return value 
+	ReadExcelFile = Null
+ 
+	' Create the Excel object
+	On Error Resume Next
+	Set objExcel = CreateObject("Excel.Application")
+	If (Err.Number <> 0) Then
+		Exit Function
+	End If
+ 
+	' Don't display any alert messages
+	objExcel.DisplayAlerts = 0  
+ 
+	' Open the document as read-only
+	On Error Resume Next
+	Call objExcel.Workbooks.Open(strFile, False, True)
+	If (Err.Number <> 0) Then
+		Exit Function
+	End If
+ 
+	' If you wanted to read all sheets, you could call
+	' objExcel.Worksheets.Count to get the number of sheets
+	' and the loop through each one. But in this example, we
+	' will just read the first sheet.
+	Set objSheet = objExcel.ActiveWorkbook.Worksheets(1)
+ 
+	' Get the number of used rows
+	nUsedRows = objSheet.UsedRange.Rows.Count
+ 
+	' Get the number of used columns
+	nUsedCols = objSheet.UsedRange.Columns.Count
+ 
+	' Get the topmost row that has data
+	nTop = objSheet.UsedRange.Row
+ 
+	' Get leftmost column that has data
+	nLeft = objSheet.UsedRange.Column
+
+	' Get the used cells
+	Set objCells = objSheet.Cells
+ 
+	' Dimension the sheet array
+	ReDim arrSheet(nUsedRows - 1, nUsedCols - 1)
+	RowCount = nUsedRows - 1
+	ColCount = nUsedCols - 1
+	' Loop through each row 
+	For nRow = 0 To (nUsedRows - 1)
+		' Loop through each column 
+		For nCol = 0 To (nUsedCols - 1)
+			' Add the cell value to the sheet array 
+			arrSheet(nRow, nCol) = objCells(nRow + nTop, nCol + nLeft).Value
+		Next
+	Next
+ 
+	' Close the workbook without saving
+	Call objExcel.ActiveWorkbook.Close(False)
+ 
+	' Quit Excel
+	objExcel.Application.Quit
+ 
+	' Return the sheet data to the caller
+	ExcelUsedRows = nUsedRows
+	ReadExcelFile = arrSheet
+ 
+End Function

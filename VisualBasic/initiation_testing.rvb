@@ -1,0 +1,22 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Tuesday, June 24, 2014 11:36:12 AM
+
+If Not IsObject(aaa) Then
+	rhino.Print "int_level was not an object; int_level created."
+	Private aaa
+End If
+
+If Not IsObject(bbb) And Not IsEmpty(bbb) Then
+	Private bbb()
+End If
+
+If IsEmpty(aaa) Then
+	aaa = 0
+End If
+
+Call Main()
+Sub Main()
+
+End Sub

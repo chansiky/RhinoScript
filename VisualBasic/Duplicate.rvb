@@ -1,0 +1,24 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Wednesday, February 02, 2011 3:04:53 PM
+
+Call Main()
+Sub Main()
+	Dim arrObjects,arrObjects2, arrobjects3, object, strlayer
+	
+	
+	arrObjects = rhino.GetObjects("select objects for copy and isolation",,,True,False)
+	
+	If isNull(arrObjects) Then
+	Exit Sub
+	End If
+	
+	If Not rhino.IsLayer("z_0") Then
+		strlayer = rhino.AddLayer("z_0",RGB(255,200,0))
+	End If
+	
+	arrObjects2 = rhino.CopyObjects(arrObjects,array(0,0,0),array(0,0,0))
+
+	rhino.SelectObjects arrObjects2
+End Sub

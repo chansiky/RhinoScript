@@ -1,0 +1,21 @@
+﻿Option Explicit
+'Script written by Chan Youn '2010
+
+Call layerlock()
+Sub layerlock()
+
+
+	Dim strobject,strobjlay
+
+	strobject = rhino.GetObject("select object on layer to lock",,True)
+		
+		If isnull(strobject) Then
+			Exit Sub
+	End If
+		strobjlay = rhino.ObjectLayer(strobject)
+				
+	rhino.layerlocked strobjlay, True
+		
+	
+	
+End Sub

@@ -1,0 +1,75 @@
+Option Explicit
+'Script written by Chan Youn '2010
+
+Call layerlock()
+Sub layerlock()
+
+
+	Dim strobject,strobjlay, arrobjects, arrobjects2
+	Dim Preselection
+	
+	Preselection = Rhino.SelectedObjects
+	
+	
+	strobject = rhino.GetObject("select object on layer to select",, True)
+		
+	If isnull(strobject) Then
+		Exit Sub
+	End If
+		
+	strobjlay = rhino.ObjectLayer(strobject)
+				
+
+		
+	arrObjects = Rhino.ObjectsByLayer(strobjlay, True)
+	
+	
+	If isArray(preselection) Then
+		rhino.SelectObjects(Preselection)
+	End If
+		
+
+
+	arrObjects2 = rhino.SelectedObjects(True)
+	
+	
+	'''counting selected objects by type
+	
+	Dim strobj2, ptcount, crvcount, srfcount, psrfccount, psrfcount
+	ptcount = 0
+	crvcount = 0
+	srfcount = 0
+	psrfccount = 0
+	psrfcount = 0
+		
+	For Each strobj2 In arrObjects2
+		If rhino.IsPoint(strobj2) Then
+			ptcount = ptcount + 1
+		End If
+		
+		If rhino.IsCurve(strobj2) Then
+			crvcount = crvcount + 1
+		End If
+		If rhino.IsSurface(strobj2) Then
+			srfcount = srfcount + 1
+		End If
+		If rhino.IsPolysurface(strobj2) Then
+			psrfcount = psrfcount + 1
+		End If
+		
+		If rhino.IsPolysurfaceclosed(strobj2) Then
+			psrfccount = psrfccount + 1
+		End If
+	
+	Next
+	
+	Dim printout
+	If isArray(preselection) Then
+		rhino.Print UBound(Preselection) & " object(s) already in selection"
+	End If
+
+
+	printout = rhino.Print("layer added to selection: " & strobjlay & "; " & ptcount & "-pt,  " & crvcount & "-crv,  " & srfcount & "-srf,  " & psrfcount - psrfccount & "-psrf,  " & psrfccount & "-sld")
+	
+	
+End Sub

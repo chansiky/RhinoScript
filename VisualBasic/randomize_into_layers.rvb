@@ -1,0 +1,65 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Friday, 21 February 2014 10:37:29
+
+Call Main()
+Sub Main()
+	Dim arrobjs
+	Dim sets
+	ReDim RandomN(0)
+	ReDim SetID(0)
+	Dim i,j
+	Dim obj
+	Dim strlayer
+	i = 0
+	j = 0
+	
+	
+	arrobjs = rhino.GetObjects("select objects to randomize into layers",,, True)
+	sets = rhino.GetInteger("how many sets?", 4, 1, 99)
+	Randomize
+	For Each obj In arrobjs
+		
+		RandomN(Ubound(RandomN)) = Rnd
+		ReDim Preserve RandomN(Ubound(RandomN)+1)			
+		
+	Next
+	
+	ReDim Preserve RandomN(Ubound(RandomN)-1)
+	ReDim Preserve SetID(Ubound(RandomN))	
+	For i = 0 To Ubound(SetID)
+		
+		SetID(i) = j
+		
+	Next	
+	Do While j < sets
+		For i = 0 To Ubound(SetID)
+			
+			If RandomN(i) > (j / sets) Then
+				
+				SetID(i) = j
+				
+			End If
+		Next
+		
+	
+		If Not rhino.IsLayer("Randomset::_" & j + 1) Then
+			strlayer = rhino.AddLayer("Randomset::_" & j + 1, RGB(Int(256 * Rnd), Int(256 * Rnd), Int(256 * Rnd)))
+		End If
+
+				
+		j = j + 1
+	Loop
+	
+	
+	For i = 0 To Ubound(SetID)
+		
+		
+		rhino.ObjectLayer arrobjs(i), "Randomset::_" & (SetID(i) + 1)
+		
+		rhino.Print SetID(i)
+		
+	Next
+	
+End Sub

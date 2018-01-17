@@ -1,0 +1,80 @@
+Option Explicit
+
+Call TextExcel()
+Sub TextExcel()
+ 
+	' Launch Excel
+	Dim app
+	Set app = CreateObject("Excel.Application")
+
+	Dim Maxwell
+	
+	Set Maxwell = CreateObject("Maxwell.Script.ScriptObject")
+
+	' successfully created?
+	If Maxwell Is Nothing Then
+		Rhino.Print("Unable to create Maxwell.Script.ScriptObject.")
+		Exit Sub
+	End If
+	' successfully connected?
+	If Not Maxwell.IsConnected Then
+		Rhino.Print("Unable to connect to the current Maxwell scene.")
+		Exit Sub
+	End If
+	
+	' Make it visible
+	app.Visible = True
+ 
+	' Add a new workbook
+	Dim wb
+	Set wb = app.workbooks.add
+	Dim i
+	Dim j
+	Dim Layer_visibility_set
+	
+	Dim arr_NamedViews
+	Dim str_View
+	Dim int_totViews
+	
+	arr_NamedViews = Rhino.NamedViews()
+	
+	int_totViews = Ubound(arr_NamedViews)
+	rhino.Print int_totViews
+	
+	For Each str_View In arr_NamedViews
+		rhino.Print str_View
+	Next
+	Layer_visibility_set = "Elevations"
+	
+	' Fill array of values first...
+	Dim arr()
+	ReDim arr(int_totViews+1, 8)
+		
+
+	
+	For i = 0 To Ubound(arr_NamedViews)
+		arr(i + 1, 0) = i
+		arr(i + 1, 1) = arr_NamedViews(i)
+		arr(i + 1, 2) = Maxwell.DateAndTime.DayOfYear	
+		arr(i + 1, 3) = Maxwell.DateAndTime.TimeOfDay
+		arr(i + 1, 4) = Maxwell.Channels.DoAlpha
+		arr(i + 1, 5) = Maxwell.Channels.DoOpaque
+		arr(i + 1, 6) = Maxwell.Environment.sceneRotation
+		arr(i + 1, 7) = Layer_visibility_set
+		arr(i + 1, 8) = False 'render yes/no
+		
+	Next
+ 
+	' Declare a range object to hold our data
+	Dim rng
+	Set rng = wb.Activesheet.Range("A1").Resize(Ubound(arr_NamedViews) + 2, 9)
+ 
+	' Now assign them all in one shot...
+	rng.value = arr
+ 
+
+ 
+	' Give the user control of Excel
+	app.UserControl = True
+ 
+End Sub

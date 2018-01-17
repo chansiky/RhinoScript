@@ -1,0 +1,24 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Wednesday, June 25, 2014 10:59:08 AM
+Private a
+Private b()
+
+
+
+Call Main()
+Sub Main()
+	Dim i
+	
+	i = 1
+	bananas(i)
+End Sub
+
+Function bananas(ByVal i)
+	If Not IsArray(b(i)) Then
+		rhino.Print "level " & i & " is not an array???"
+		Exit Function
+		
+	End If
+End Function

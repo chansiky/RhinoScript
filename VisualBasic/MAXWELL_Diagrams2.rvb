@@ -1,0 +1,104 @@
+Option Explicit
+'Script written by <Chan Youn>
+'Script copyrighted by <insert company name>
+'Script version Wednesday, March 26, 2014 5:21:40 PM
+Call Main()
+Sub Main()
+
+	'CHANGE the Array of layer names to all the layers that need to turned on/off.  Keep these layers off.
+	
+	
+	
+	Dim layer_names
+	Dim layer
+	Dim prev_layer
+	Dim i
+	
+	
+	
+	layer_names = Array("DIAGRAM_SOLIDMASS", "DIAGRAM_SUN", "DIAGRAM_THROUGHWAY", "DIAGRAM_SHIFTOUT", "DIAGRAM_PLINTH", "DIAGRAM_OPENSPACE", "DIAGRAM_OFFICE_RETAIL", "DIAGRAM_CANOPY", "DIAGRAM_TOWER_MASS", "DIAGRAM_GREENVERT")
+	
+	If Not rhino.IsLayer("11f291f62e7c7874c4b1") Then
+		rhino.AddLayer("11f291f62e7c7874c4b1")
+	End If
+	rhino.CurrentLayer("11f291f62e7c7874c4b1")
+	
+	For Each layer In layer_names
+		rhino.LayerVisible layer, False
+	Next
+	
+	
+	For Each layer In layer_names
+		rhino.CurrentLayer(layer)
+		If  i > 0  Then
+			rhino.LayerVisible prev_layer, False
+		End If
+		i = i + 1
+		prev_layer = layer
+		Render_byCurrLayerName()
+		Rhino.Sleep(3000)
+	Next
+	
+
+	rhino.CurrentLayer("11f291f62e7c7874c4b1")
+	rhino.LayerVisible layer_names(UBound(layer_names)), False	
+	i = 0
+	
+	Rhino.DeleteLayer("11f291f62e7c7874c4b1")
+	
+End Sub
+
+
+
+Function Render_byCurrLayerName()
+	Dim Maxwell
+	Dim i
+	Dim Lay_Curr
+	Dim scenePath
+	Dim name
+	Dim prefix
+	'''''''''''''''''''''''''
+	prefix = "150312"
+	'''''''''''''''''''''''''
+	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+	' create the ScriptObject
+	Set Maxwell = CreateObject("Maxwell.Script.ScriptObject")
+	' successfully created?
+	If Maxwell Is Nothing Then
+		Rhino.Print("Unable to create Maxwell.Script.ScriptObject.")
+		Exit Function
+	End If
+	' successfully connected?
+	If Not Maxwell.IsConnected Then
+		Rhino.Print("Unable to connect to the current Maxwell scene.")
+		Exit Function
+	End If
+	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+	
+	scenePath = Maxwell.Output.scenePath
+	Lay_Curr = rhino.CurrentLayer
+	name = Lay_Curr
+	
+	Dim per
+	Dim backslash	
+	Dim str_left
+	Dim str_right
+	Dim new_path
+
+	per = InStr(scenePath, ".")
+	backslash = InStrRev(scenePath, "\")
+	str_left = Left(scenePath, backslash)
+	str_right = Right(scenePath, (len(scenePath) - per + 1))
+	
+	If prefix Then
+		prefix = trim(prefix)
+		Lay_Curr = trim(Lay_Curr)
+		name = Join((Array(prefix, "-", Lay_Curr)), "")
+	End If
+	
+	new_path = Join(Array(str_left, name, str_right))
+	
+	Maxwell.Output.scenePath = new_path
+	Maxwell.Rendering.RenderToMxcl()
+	
+End Function

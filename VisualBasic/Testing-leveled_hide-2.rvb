@@ -1,0 +1,20 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Wednesday, June 25, 2014 11:05:27 AM
+
+Private aa
+
+
+If IsEmpty(c) Then
+	rhino.Print "arrObjs was not an object; arrObjs created."
+	Private c()
+End If
+
+Call Main()
+Sub Main()
+	aa = 0
+	ReDim Preserve c(aa)
+	c(aa) = 1
+	rhino.print c(aa)
+End Sub

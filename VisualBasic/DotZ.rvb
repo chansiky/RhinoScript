@@ -1,0 +1,17 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Friday, August 15, 2014 3:00:05 PM
+
+Call Main()
+Sub Main()
+	Dim point
+	
+	point = rhino.getpoint("select point")
+	Dim string
+	string = point(2)
+	Dim dot
+	rhino.Print(string)
+	dot = rhino.AddTextDot(string, point)
+	
+End Sub

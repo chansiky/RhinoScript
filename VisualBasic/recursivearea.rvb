@@ -1,0 +1,66 @@
+﻿Option Explicit
+'Script written by <Chan sik Youn>
+'Script copyrighted by <>
+'Script version Saturday, April 03, 2010 9:12:18 PM
+
+recursiveArea()
+
+
+Sub recursiveArea()
+	Dim strPolygon
+	strPolygon = Rhino.GetObject("Select a curve to fit to area", 4, True, True)
+	If IsNull(strPolygon) Then Exit Sub
+	Dim dblArea
+	dblArea = Rhino.Curvearea(strPolygon)
+	Dim dblAreaLimit
+	
+'	dim curvecopy
+'	curvecopy = rhino.copyobject(strPolygon)
+		If not Rhino.iscurveclosed(strPolygon) then 
+		Rhino.print("Selection wasn't a closed curve")
+		exit sub
+	End If
+	
+	dblAreaLimit = Rhino.GetReal("Current Area", dblArea(0), 0.01 * dblArea(0), 300*dblArea(0))
+	If IsNull(dblArealimit) Then Exit Sub
+		
+	Dim dblArea2, origin
+	dblArea2 = Rhino.Curvearea(strPolygon)
+	
+	If dblArea2(0) > dblAreaLimit Then
+	Do
+
+		dblArea2 = Rhino.Curvearea(strPolygon)
+		If dblArea2(0) <= dblAreaLimit Then Exit Do
+	
+	
+		origin = rhino.curveareacentroid(strPolygon)
+		strPolygon = Rhino.ScaleObject(strPolygon,origin(0), Array(0.99, 0.99, 0.99))
+		If IsNull(strPolygon) Then
+			Call Rhino.Print("Something went wrong...")
+			Exit Sub
+		End If
+	Loop
+	strPolygon = Rhino.ScaleObject(strPolygon,origin(0), Array(1.002, 1.002, 1.002))
+	End If
+	
+	If dblArea2(0) < dblAreaLimit Then
+	Do
+		
+			dblArea2 = Rhino.Curvearea(strPolygon)
+		If dblArea2(0) >= dblAreaLimit Then Exit Do
+	
+
+		origin = rhino.curveareacentroid(strPolygon)
+		strPolygon = Rhino.ScaleObject(strPolygon,origin(0), Array(1.01, 1.01, 1.01))
+		If IsNull(strPolygon) Then
+			Call Rhino.Print("Something went wrong...")
+			Exit Sub
+		End If
+	Loop
+	strPolygon = Rhino.ScaleObject(strPolygon,origin(0), Array(0.998, 0.998, 0.998))
+	End If
+	
+	dblArea2 = Rhino.Curvearea(strPolygon)
+	Call Rhino.Print("New Area: " & dblArea2(0))
+End Sub

@@ -1,0 +1,106 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Tuesday, March 18, 2014 9:34:08 AM
+
+
+
+Private int_level
+
+'If IsEmpty(int_level) Then
+'	rhino.Print "int_level was not an object; int_level created."
+'	Private int_level
+'End If
+'
+If IsEmpty(arrObjs) Then
+	rhino.Print "arrObjs was not an object; arrObjs created."
+	Private arrObjs()
+End If
+'
+
+
+'create check to make sure objects in hidden or shown are all hidden.
+'revert to last applicable level
+
+Call Main()
+Sub Main()
+	
+	Dim strObj
+	
+	If IsEmpty(int_level) Then
+		rhino.Print "int_level was empty; int_level set to 0."
+		int_level = 0
+	Else
+		int_level = int_level + 1
+	End If
+	ReDim Preserve arrObjs(int_level)
+	rhino.print int_level
+	
+	Dim j
+	j = 0
+	Do While j < int_level
+		If LevelHiddenCheck(j) = False Then
+			
+			int_level = j
+			rhino.print "int_level reverted back to last hidden level"
+	
+		End If
+		j = j + 1
+	Loop
+
+	
+	
+	arrObjs(int_level) = rhino.GetObjects("select Objects to hide in level " & int_level,,, True)
+	
+	If Not IsArray(arrObjs(int_level)) Then
+		Exit Sub
+	End If
+	
+
+	
+	rhino.HideObjects(arrObjs(int_level))
+	'	
+	'		For Each strObj In arrObjs(int_level)
+	'
+	'	rhino.Print strObj
+	'	Next
+	''	
+	rhino.print "variable type of arrObjs(" & int_level & ")" & VarType(arrObjs(int_level))
+	rhino.print "Ubound(arrObjs) = " & Ubound(arrObjs)
+	
+	''
+	rhino.Print "level " & int_level & " hidden"
+End Sub
+
+Function LevelHiddenCheck(ByVal i)
+
+	Dim strObject
+	Dim levelHidden
+	levelHidden = True
+	
+	If Not IsArray(arrObjs(i)) Then
+		
+		rhino.Print "level " & i & " is not an array???"
+		Exit Function
+		
+	End If
+	For Each strObject In arrObjs(i)
+		If Not Rhino.IsObjectHidden(strObject) Then
+			
+			rhino.Print "level " & i & " is not hidden"
+			levelHidden = False
+			LevelHiddenCheck = False
+			Exit For
+		End If
+
+	Next
+	
+	
+	'''
+	If LevelHidden Then
+		rhino.Print "level " & i & " is hidden"
+		LevelHiddenCheck = True
+	End If
+	'''
+
+End Function

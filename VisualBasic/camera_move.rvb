@@ -1,0 +1,53 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Thursday, September 25, 2014 9:17:48 PM
+
+Call Main()
+Sub Main()
+
+	Dim cameraname
+	Dim namedviews
+	
+	Dim startpoint
+	Dim endpoint
+	Dim vector
+	Dim vectorpoint
+	Dim cenpt
+	
+	namedviews = rhino.NamedViews()
+
+	startpoint = rhino.GetPoint("select start point")
+	endpoint = rhino.GetPoint("select end point")
+	
+	vector = Rhino.VectorCreate(startpoint, endpoint)
+	cenpt = Rhino.AddPoint(array(0, 0, 0))
+	Dim cameraup
+	Dim cameratarget
+	Dim cameraloc : cameraloc = 0
+	Dim cameralocpt
+
+	Dim newpu
+	Dim newtarget
+	Dim newloc
+	Dim i
+	
+	
+	For i = 0 To Ubound(namedviews)
+		Rhino.Print namedviews(i)
+		
+		Rhino.RestoreNamedView namedviews(i)
+		cameraloc = rhino.ViewCamera(namedviews(i))
+				
+		rhino.Print(VarType(cameraloc))
+		newloc = rhino.VectorSubtract(cameraloc, vector)
+		rhino.ViewCamera namedviews(i), newloc
+		Rhino.DeleteNamedView namedviews(i)
+		Rhino.AddNamedView namedviews(i)
+	Next
+	
+
+
+	rhino.CurrentView("CAMERA_TEST")
+	
+End Sub

@@ -1,0 +1,69 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Friday, December 27, 2013 3:03:51 PM
+
+Call Main()
+Sub Main()
+
+	RestoreLayerStates
+
+End Sub
+
+Function RestoreLayerStates()
+	
+	Dim layID, layLocked, layVis, layColor, i
+			
+	layID = ReadTxtFile("LayerIds")
+	layLocked = ReadTxtFile("LayerLocked")
+	layVis = ReadTxtFile("LayerVisible")
+	layColor = ReadTxtFile("LayerColor")
+	
+	For i = 0 To Ubound(layID)
+		Rhino.LayerLocked layID(i), layLocked(i)
+		Rhino.LayerVisible layID(i), layVis(i)
+		Rhino.LayerColor layID(i), layColor(i) * 1
+	Next
+
+	
+End Function
+
+Function ReadTxtFile (ByVal strFilename)
+
+	Const ForReading = 1, ForAppending = 8
+	Dim fso, txt, i, linecount : linecount = 0
+	Dim arrResults : ReDim arrResults(0)
+
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set txt = fso.OpenTextFile(GetTempDir & "\" & strFilename & ".txt", ForReading) 	'txt-file will be opened from the local temp direction
+	
+	Do While txt.AtEndOfStream <> True
+		txt.skipline
+		If Not txt.AtEndOfStream Then
+			linecount = linecount + 1
+		End If
+	Loop	
+	'	rhino.Print linecount
+	Set txt = fso.OpenTextFile(GetTempDir & "\" & strFilename & ".txt", ForReading)
+	
+	For i = 0 To linecount 													' loop to store all Lines in an array (Line1 = array(0), Line2 = array(1),...)
+		arrResults(i) = txt.ReadLine
+		If Not txt.AtEndOfStream Then 
+			ReDim Preserve arrResults(Ubound(arrResults)+1)
+		End If
+	Next
+	
+	ReadTxtFile = arrResults
+	
+End Function
+
+Function GetTempDir()
+
+	Dim WScript, WshShell, objEnv
+	
+	Set WshShell = CreateObject("WScript.Shell")
+	Set objEnv = WshShell.Environment("PROCESS")
+	
+	GetTempDir = objenv("temp")
+	
+End Function

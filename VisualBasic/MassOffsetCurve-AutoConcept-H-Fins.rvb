@@ -1,0 +1,60 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Monday, 03 June 2013 11:48:57
+
+Call Main()
+Sub Main()
+
+	Dim strCrvs,origCrv, dirPt,OffsetAmount, OffsetCurve
+	Dim Mullion_Face, Mullion_Depth, Mullion_Height,Slab_Height
+	Dim Crv_Mull_Outside, Crv_Mull_Inside
+	Dim Srf_Mull_Profile,Srf_Slab_Profile
+	Dim PSrf_Mull,PSrf_Mull2,PSrf_Slab
+	Dim Crv_Dir_MullHeight, Crv_Dir_SlabHeight
+	Dim Crv_MullJt_A,Crv_MullJt_B
+	
+	Mullion_Face = -10
+	Mullion_Depth = -400
+	Mullion_Height = 50
+
+	
+	Crv_Dir_MullHeight = Rhino.AddCurve(Array(Array(0, 0, 0), Array(0, 0, -Mullion_Height)))
+	Crv_Dir_SlabHeight = Rhino.AddCurve(Array(Array(0, 0, 0), Array(0, 0, -Slab_Height)))
+	
+	strCrvs = Rhino.GetObjects("select Curves to Offset", 4,, 1)
+	If Not IsNull(strCrvs) Then
+		dirPt = Rhino.GetPoint("select point to Offset All curves")
+		If Not IsNull(dirPt) Then
+			For Each origCrv In strCrvs
+				If Not IsNull(origCrv) Then
+					Crv_Mull_Outside = Rhino.OffsetCurve(origCrv, dirPt, Mullion_Face)
+					Crv_Mull_Inside = Rhino.OffsetCurve(origCrv, dirPt, Mullion_Face + Mullion_Depth)
+					If Rhino.IsCurveClosed(Crv_Mull_Outside(0)) And Rhino.IsCurveClosed(Crv_Mull_Inside(0)) Then
+						Srf_Mull_Profile = Rhino.AddPlanarSrf(Array(Crv_Mull_Outside(0), Crv_Mull_Inside(0)))
+						PSrf_Mull = Rhino.ExtrudeSurface(Srf_Mull_Profile(0), Crv_Dir_MullHeight, True)
+						Rhino.ObjectColor PSrf_Mull, RGB(140, 140, 150)
+					End If
+
+
+					
+				End If
+				
+				Rhino.DeleteObject(Crv_Mull_Outside(0))
+				Rhino.DeleteObject(Crv_Mull_Inside(0))
+				Rhino.DeleteObject(Srf_Mull_Profile(0))
+				
+				
+			Next
+	
+		End If
+	End If
+	
+	Rhino.DeleteObject(Crv_Dir_SlabHeight)
+	Rhino.DeleteObject(Crv_Dir_MullHeight)
+	
+
+
+	
+	
+End Sub

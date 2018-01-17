@@ -1,0 +1,123 @@
+﻿Option Explicit
+'Script written by Chansik Youn, 2010
+
+
+Call Main()
+Sub Main()
+
+	Const dblOsnap = 1 'Near Osnap
+	Dim n
+	n = array(2,4,8,16,32,64,128,256,512,1024)
+	Dim x
+	Dim A,B,C,D,E,F,G,H,I,J
+	Dim arrA(),arrB(),arrC(),arrD(),arrE(),arrF(),arrG(),arrH(),arrI(),arrj()
+	Dim countA,countB,countC,countD,countE,countF,countG,countH,countI,countJ
+	countA = 0
+	countB = countC = countD = countE = countF = countG = countH = countI = countJ = 0
+
+	For a=0 To ubound(n)
+		x= n(a)
+		ReDim Preserve arrA(countA)
+		arrA(countA) = x
+		countA = countA +1
+		For b = 1 To ubound(n)-a
+			x = n(a)+ n(a+b)
+			ReDim Preserve arrB(countB)
+			arrB(countB) =x
+			countB = countB+1
+			For c =1 To ubound(n)-b-a
+				x = n(a) +n(a+b) +n(a+b+c)
+				ReDim Preserve arrC(countC)
+				arrC(countC) =x
+				countC = countC+1
+				For d = 1 To ubound(n)-a-b-c
+					x = n(a) +n(a+b) +n(a+b+c)+ n(a+b+c+d)
+					ReDim Preserve arrd(countd)
+					arrd(countd) =x
+					countd = countd+1
+					For E = 1 To ubound(n)-b-a-c-d
+						x = n(a) + n(a+b) + n(a+b+c) + n(a+b+c+d) + n(a+b+c+d+e)
+						ReDim Preserve arrE(countE)
+						arrE(countE) =x
+						countE = countE+1
+						For F = 1 To ubound(n)-b-a-c-d-e
+							x = n(a) + n(a+b) + n(a+b+c) + n(a+b+c+d)+ + n(a+b+c+d+e) +n(a+b+c+d+e+f)
+							ReDim Preserve arrF(countF)
+							arrF(countF) =x
+							countF = countF+1
+							For G = 1 To ubound(n)-b-a-c-d-e-f
+								x = n(a) + n(a+b) + n(a+b+c)+ n(a+b+c+d)+ + n(a+b+c+d+e) +n(a+b+c+d+e+f) + n(a+b+c+d+e+f+g)
+								ReDim Preserve arrG(countG)
+								arrG(countG) =x
+								countG = countG+1
+								For H = 1 To ubound(n)-b-a-c-d-e-f-g
+									x = n(a) + n(a+b) + n(a+b+c)+ n(a+b+c+d)+ + n(a+b+c+d+e) +n(a+b+c+d+e+f) + n(a+b+c+d+e+f+g) + n(a+b+c+d+e+f+g+h)
+									ReDim Preserve arrH(countH)
+									arrH(countH) =x
+									countH = countH+1
+									For I = 1 To ubound(n)-b-a-c-d-e-f-g-h
+										x = n(a) + n(a+b) + n(a+b+c)+ n(a+b+c+d)+ + n(a+b+c+d+e) +n(a+b+c+d+e+f) + n(a+b+c+d+e+f+g) + n(a+b+c+d+e+f+g+h)+ n(a+b+c+d+e+f+g+h+i)
+										ReDim Preserve arrI(countI)
+										arrI(countI) =x
+										countI = countI+1
+										For J = 1 To ubound(n)-b-a-c-d-e-f-g-h-i
+											x = n(a) + n(a+b) + n(a+b+c)+ n(a+b+c+d)+ + n(a+b+c+d+e) +n(a+b+c+d+e+f) + n(a+b+c+d+e+f+g) + n(a+b+c+d+e+f+g+h)+ n(a+b+c+d+e+f+g+h+i)+ n(a+b+c+d+e+f+g+h+i+j)
+											ReDim Preserve arrJ(countJ)
+											arrJ(countJ) =x
+											countJ = countJ+1
+										Next
+									Next
+								Next
+							Next		
+						Next
+					Next
+				Next
+			Next
+		Next
+	Next
+	
+	
+	
+	Dim intMode
+	Dim r: r = 0
+	
+	intMode = Rhino.OsnapMode
+	
+	testEQ arrA,intmode,r
+	testEQ arrB,intmode,r
+	testEQ arrC,intmode,r
+	testEQ arrD,intmode,r
+	testEQ arrE,intmode,r
+	testEQ arrF,intmode,r
+	testEQ arrG,intmode,r
+	testEQ arrH,intmode,r
+	testEQ arrI,intmode,r
+	testEQ arrJ,intmode,r
+	
+'	rhino.Print("old intMode is: " & intmode)
+'	rhino.print("1 is unselected, 0 is selected: " & r)
+
+	If r > 0 Then
+		intMode = intMode + dblOsnap
+		Rhino.OsnapMode intMode
+	End If
+		
+	If r = 0 Then
+		intMode = intMode - dblOsnap
+		Rhino.OsnapMode intMode
+	End If
+
+'	rhino.Print("new intMode is: " & intmode)
+	
+End Sub
+
+
+Function testEQ(arrayQ,snapMode,tester)
+	Dim t
+	For t=0 To Ubound(arrayQ)
+		If tester = 1 Then Exit For
+		If snapMode = arrayQ(t) Then
+			tester = tester+1
+		End If
+	Next
+End Function

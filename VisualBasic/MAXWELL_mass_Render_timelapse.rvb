@@ -1,0 +1,65 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Wednesday, March 26, 2014 5:21:40 PM
+
+Call Main()
+Sub Main()
+
+	Dim Maxwell
+	Dim min_time
+	Dim max_time
+	Dim time_count
+	Dim time_increment
+	Dim frames
+	Dim output_name
+	
+	''''''''''''''''''''''''''''''''''''''''''''''''
+	frames = 6
+	min_time = 8.5
+	max_time = 17.5 
+	''''''''''''''''''''''''''''''''''''''''''''''''
+	
+	time_increment = ((max_time - min_time) / (frames - 1))
+	time_count = min_time
+	
+	' create the ScriptObject
+	Set Maxwell = CreateObject("Maxwell.Script.ScriptObject")
+
+	' successfully created?
+	If Maxwell Is Nothing Then
+		Rhino.Print("Unable to create Maxwell.Script.ScriptObject.")
+		Exit Sub
+	End If
+	' successfully connected?
+	If Not Maxwell.IsConnected Then
+		Rhino.Print("Unable to connect to the current Maxwell scene.")
+		Exit Sub
+	End If
+	
+
+	Dim mx_ToD
+
+
+
+	Do While time_count <= max_time
+			
+		mx_ToD = time_count
+		output_name = "timelapse" & time_count * 100
+		Maxwell.Settings.MXIFileName = output_name
+		Maxwell.DateAndTime.TimeOfDay = mx_ToD
+		
+		Maxwell.Rendering.RenderToMxcl()
+		Rhino.Print "time" & mx_ToD & " sent out to render"
+		Rhino.Sleep(1000)
+		
+		
+		
+		time_count = time_count + time_increment
+	Loop
+
+	
+
+	
+	
+End Sub

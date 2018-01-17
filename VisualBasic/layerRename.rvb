@@ -1,0 +1,75 @@
+Option Explicit
+'Script written by Chan Youn
+
+Call Main()
+Sub Main()
+
+	Dim i
+	Dim arrlayers,strlayer
+	Dim strobject,strobjlay
+	Dim strobject2, strobjlay2
+	Dim curlay
+	Dim strNewName
+	Dim strCurLayname
+	
+	
+	Dim newlayername
+	arrLayers = rhino.layernames
+	If isnull(arrlayers) Then
+		Exit Sub
+	End If
+	''get layer status ''and unlock all layers
+	If isarray(arrlayers) Then
+		ReDim layerstate(Ubound(arrLayers))
+		For i = 0 To Ubound(arrLayers)
+			layerstate(i) = rhino.layerlocked(arrlayers(i))
+			rhino.layerlocked(arrlayers(i)), False
+		Next
+		''select layer
+		strobject = rhino.GetObject("select object on layer to rename",, True)
+		
+		If isnull(strobject) Then
+			For i = 0 To Ubound(arrLayers)
+				rhino.layerlocked arrlayers(i), layerstate(i)
+			Next
+			Exit Sub
+		End If
+		
+
+		
+		strobjlay = rhino.ObjectLayer(strobject)
+		strCurLayname = rhino.LayerName(strobjlay)
+		strNewName = rhino.GetString("Current layer name is '" & strCurLayname & "'; New Layer Name?:")
+		newlayername = rhino.RenameLayer(strobjlay, strNewName)
+		If isnull(newlayername) Then
+			rhino.Print "layer name not changed"
+			}
+		End If
+		
+		
+		''''''changes current layer to switch layer if the layer that user wants to hide is the current layer
+		curlay = rhino.currentlayer
+		
+		If isnull(strobjlay) Then
+			For i = 0 To Ubound(arrLayers)
+				rhino.layerlocked arrlayers(i), layerstate(i)
+			Next
+			Exit Sub
+		End If
+		
+		
+		''relocklayers
+		For i = 0 To Ubound(arrLayers)
+			rhino.layerlocked arrlayers(i), layerstate(i)
+		Next
+		''unhide selected layer
+
+		rhino.layervisible strobjlay, False
+		
+	End If
+
+	
+
+	
+	
+End Sub

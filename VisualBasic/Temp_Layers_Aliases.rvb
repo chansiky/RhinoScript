@@ -1,0 +1,18 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Friday, 13 June 2014 12:22:00
+
+Call Main()
+Sub Main()
+	
+	Dim i
+	Dim iterations
+	iterations = 100
+	For i = 0 To iterations
+		
+		
+		rhino.Print"t" & i & " ! -_LoadScript ""C:\cy\rhinoscripts\Temp_Layers\TempLay_Set-" & i & ".rvb"""
+	Next
+	
+End Sub

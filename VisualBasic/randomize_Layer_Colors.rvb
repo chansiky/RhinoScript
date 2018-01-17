@@ -1,0 +1,20 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Friday, January 03, 2014 7:07:56 PM
+
+Call Main()
+Sub Main()
+	Dim arrobjs, strobj
+	Dim layerobj
+	
+	arrobjs = rhino.getobjects("select objects to randomize layer colors",,, True)
+	rhino.enableredraw False
+	Randomize
+	For Each strobj In arrobjs
+		layerobj = rhino.ObjectLayer(strobj)
+		rhino.layerColor layerobj, RGB(Int(256 * Rnd), Int(256 * Rnd), Int(256 * Rnd))
+		
+	Next
+	rhino.enableredraw True
+End Sub

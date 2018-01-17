@@ -1,0 +1,18 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Friday, January 03, 2014 7:07:56 PM
+
+Call Main()
+Sub Main()
+	Dim arrobjs, strobj
+	
+	arrobjs = rhino.getobjects("select objects to randomize colors")
+	Randomize
+	For Each strobj In arrobjs
+		
+		rhino.objectcolor strobj, RGB(Int(256 * Rnd), Int(256 * Rnd), Int(256 * Rnd))
+		
+	Next
+	
+End Sub

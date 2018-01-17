@@ -1,0 +1,65 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Sunday, April 11, 2010 9:17:05 PM
+
+Call Main()
+Sub Main()
+
+	Dim preselection
+	Dim point0,point1,point2
+	Dim center
+	Dim rect,plsrf,plsrf2
+	Dim selection
+		
+	'Dim lay_name
+	'lay_name = "Temporary::construction"
+	
+	
+	preselection = rhino.selectedobjects
+	If isarray(preselection) Then
+		preselection = rhino.getobjects("", 0, True, True)
+	End If
+
+
+
+
+	
+	rhino.Command "_rectangle _p"
+
+	rect = Rhino.LastCreatedObjects 
+	If isnull(rect) Then
+		Exit Sub
+	End If
+	
+	plsrf = Rhino.AddPlanarSrf(rect(0))
+	plsrf2 = plsrf(0)
+	rhino.DeleteObject(rect(0))
+	
+	
+	'''''''''''''''''''''''''''''''
+	'SCALE PLANE
+	'	center = rhino.SurfaceAreaCentroid(plsrf2)
+	'	rhino.Print plsrf2
+	'	plsrf2 = rhino.ScaleObject(plsrf2, center(0), array(2.0, 2.0, 2.0), 0)
+		
+	
+	'''''''''''''''''''''''''''''''
+	
+	
+	Dim strobject, strobjectnew
+	'	Dim strlayer
+	
+	'	If Not rhino.IsLayer(lay_name) Then
+	'		strlayer = rhino.AddLayer(lay_name, RGB(148, 189, 225))
+	'	End If
+	'	
+	'	If rhino.IsLayer(lay_name) Then
+	'		strobject = plsrf2
+	'		strobjectnew = rhino.ObjectLayer(strobject, lay_name)
+	'		rhino.unselectallobjects
+	'	End If
+	If isarray(preselection) Then 
+		rhino.selectobjects(preselection)
+	End If
+End Sub

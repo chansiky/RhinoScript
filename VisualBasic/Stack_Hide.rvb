@@ -1,0 +1,20 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Tuesday, March 18, 2014 9:34:08 AM
+
+'Private int_level
+'Private arrObjs()
+
+Call Main()
+Sub Main()
+	Dim str_objs
+	Dim str_hideGroupName
+	str_hideGroupName = "A"
+	
+	str_objs = rhino.GetObjects("select objects to hide",,, True)
+
+	
+	Rhino.Command "! _-Hide """ & str_hideGroupName & """ _Enter"
+
+End Sub

@@ -1,0 +1,17 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Tuesday, June 24, 2014 11:46:13 AM
+If IsEmpty(bannnnas) Then
+	rhino.Print "checkpointA"
+	Private bannnnas()
+	rhino.Print "checkpointB"
+End If
+
+
+Call Main()
+Sub Main()
+
+	ReDim Preserve bannnnas(3)
+	rhino.Print "checkpointC"
+End Sub

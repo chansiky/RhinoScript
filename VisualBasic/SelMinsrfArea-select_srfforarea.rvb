@@ -1,0 +1,94 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Sunday, December 15, 2013 10:38:31 PM
+
+Private dbl_Area
+
+Call Main()
+Sub Main()
+	
+	Dim Curves
+	Dim SrfArea	
+	Dim SrfAreaArray
+	Dim strobj
+	ReDim arrcrvs(0)
+	Dim minSrfArea
+	Dim CountOver
+	Dim CountTotal
+	Dim Percentage
+	Dim Ref_obj
+	Dim Ref_obj_area
+	
+	Dim Cushion
+	
+	CountOver = 0
+	CountTotal = 0
+	Cushion = 1000
+	
+	If IsEmpty(dbl_Area) Then
+		dbl_Area = 1000.0
+	End If
+	
+	Curves = rhino.GetObjects("Select Surfaces/PolySurfaces to sort", 24,, True)
+		
+	If Not IsArray(Curves) Then
+		
+		Exit Sub
+	End If
+	
+	
+	Ref_obj = rhino.GetObject("select Reference Surface, or ESC for manual input", 24)
+
+	If Not IsNull(Ref_obj) Then
+		Ref_obj_area = rhino.SurfaceArea(Ref_obj)(0)
+		minSrfArea = Ref_obj_area + 1.0
+
+	End If
+	
+	If IsNull(Ref_obj) Then
+		minSrfArea = rhino.GetReal("Minimum Surface Area", dbl_Area)		
+		
+	End If
+
+	rhino.UnselectAllObjects
+	If Not IsNull(dbl_Area) Then
+		dbl_Area = minSrfArea
+		For Each strobj In Curves
+			CountTotal = CountTotal + 1
+		
+			SrfAreaArray = rhino.SurfaceArea(strobj)
+			SrfArea = SrfAreaArray(0)
+			If SrfArea > minSrfArea Then
+				CountOver = CountOver + 1
+				arrcrvs(Ubound(arrcrvs)) = strobj
+				ReDim Preserve arrcrvs(Ubound(arrcrvs)+1)
+			End If
+		Next
+	End If
+	
+	For Each strobj In Curves
+		CountTotal = CountTotal + 1
+		
+		SrfAreaArray = rhino.SurfaceArea(strobj)
+		SrfArea = SrfAreaArray(0)
+		If SrfArea > minSrfArea Then
+			CountOver = CountOver + 1
+			arrcrvs(Ubound(arrcrvs)) = strobj
+			ReDim Preserve arrcrvs(Ubound(arrcrvs)+1)
+		End If
+	Next
+
+	ReDim Preserve arrcrvs(Ubound(arrcrvs)-1)
+	'removing empty array slot created by very last ReDim preserve. Otherwise rhino.SelectObjects returns error [Type Mismatch.. expected string] because the last array slot is empty.
+	
+	If IsArray(arrcrvs) Then
+		Rhino.SelectObjects arrcrvs
+	End If
+	
+	Percentage = CInt(CountOver / CountTotal * 10000) / 100
+	'CInt() = Convert to integer
+		
+	Rhino.Print CountOver & " / " & CountTotal & " surfaces over " & minSrfArea & ". (" & Percentage & "%)"
+
+End Sub

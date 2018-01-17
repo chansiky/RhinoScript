@@ -1,0 +1,111 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Sunday, December 15, 2013 10:38:31 PM
+
+Private dbl_Length
+Private dbl_Tol 
+
+Call Main()
+Sub Main()
+	
+	Dim Curves
+	Dim SrfArea	
+	Dim SrfAreaArray
+	Dim strobj
+	ReDim arrcrvs(0)
+	Dim maxCrvLength
+	Dim CountOver
+	Dim CountTotal
+	Dim Percentage
+	Dim Ref_obj
+	Dim Ref_obj_length
+	
+	Dim dbl_Tolerance
+	
+	CountOver = 0
+	CountTotal = 0
+	
+	If IsEmpty(dbl_Length) Then
+		dbl_Length = 1000.0
+	End If 
+	If IsEmpty(dbl_Tol) Then
+		dbl_Tol = 0.0
+	End If
+	If Not IsNumeric(dbl_Tol) Then
+		dbl_Tol = 0.0
+	End If
+	
+	
+	Curves = rhino.GetObjects("Select Curves to sort", 4,, True)
+		
+	If Not IsArray(Curves) Then
+		Exit Sub
+	End If
+	
+	
+	Ref_obj = rhino.GetObject("select Reference Curve, or ESC for manual input", 4)
+	If IsNull(Ref_obj) Then
+		maxCrvLength = rhino.GetReal("Maximum Curve Length", dbl_Length)		
+		
+	End If
+	If Not IsNull(Ref_obj) Then
+		Ref_obj_length = rhino.curveLength(Ref_obj)
+		maxCrvLength = Ref_obj_length
+
+	End If
+	
+	dbl_Tolerance = rhino.GetReal("Tolerance", dbl_Tol)	
+
+	
+	If Not IsNull(dbl_Tolerance) Then
+		dbl_Tol = dbl_Tolerance	
+	End If
+	If Not IsNumeric(dbl_Tol) Then
+		dbl_Tol = 0.0
+	End If
+	
+	If Not IsNull(maxCrvLength) Then
+		dbl_Length = maxCrvLength
+	End If
+	
+	rhino.UnselectAllObjects
+	rhino.Prompt "Calculating"
+	
+	For Each strobj In Curves
+		CountTotal = CountTotal + 1
+		
+		SrfAreaArray = rhino.curveLength(strobj)
+		SrfArea = SrfAreaArray
+		If SrfArea >= (maxCrvLength + dbl_Tolerance) Then
+			CountOver = CountOver + 1
+			arrcrvs(Ubound(arrcrvs)) = strobj
+			ReDim Preserve arrcrvs(Ubound(arrcrvs)+1)
+		End If
+	Next
+			
+	For Each strobj In Curves
+		CountTotal = CountTotal + 1
+		
+		SrfAreaArray = rhino.curveLength(strobj)
+		SrfArea = SrfAreaArray
+		If SrfArea >= (maxCrvLength + dbl_Tolerance) Then
+			CountOver = CountOver + 1
+			arrcrvs(Ubound(arrcrvs)) = strobj
+			ReDim Preserve arrcrvs(Ubound(arrcrvs)+1)
+		End If
+	Next
+
+	ReDim Preserve arrcrvs(Ubound(arrcrvs)-1)
+	'removing empty array slot created by very last ReDim preserve. Otherwise rhino.SelectObjects returns error [Type Mismatch.. expected string] because the last array slot is empty.
+	
+	If IsArray(arrcrvs) Then
+		Rhino.SelectObjects arrcrvs
+	End If
+	
+	Percentage = CInt(CountOver / CountTotal * 10000) / 100
+	'CInt() = Convert to integer
+		
+	Rhino.Print CountOver & " / " & CountTotal & " (" & Percentage & "%)" & " curves over " & maxCrvLength & "."
+
+End Sub

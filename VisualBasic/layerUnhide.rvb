@@ -1,0 +1,91 @@
+﻿Option Explicit
+'Script written by Chan Youn
+
+Call Main()
+Sub Main()
+
+	Dim i
+	Dim arrlayers,strlayer
+	Dim strobject,strobjlay
+	Dim layParent
+	
+	
+	arrLayers = rhino.layernames
+	If isnull(arrlayers) Then
+		Exit Sub
+	End If
+	rhino.Print "****Script in progess.  Do not cancel****"
+	If isarray(arrlayers) Then
+		rhino.enableredraw False
+		ReDim layerstate(Ubound(arrLayers))
+		ReDim layerstate2(Ubound(arrLayers))
+		For i = 0 To Ubound(arrLayers)
+			layerstate(i) = rhino.layervisible(arrlayers(i))
+			layerstate2(i) = rhino.layerlocked(arrlayers(i))
+			rhino.layervisible(arrlayers(i)), True
+			rhino.layerlocked(arrlayers(i)), False
+		Next
+		rhino.EnableRedraw True
+		rhino.Print "****ok to cancel now****"
+		strobject = rhino.GetObject("select object on layer to unhide")
+		
+		If isnull(strobject) Then
+			rhino.EnableRedraw False
+			For i = 0 To Ubound(arrLayers)
+				rhino.layervisible arrlayers(i), layerstate(i)
+				rhino.layerlocked(arrlayers(i)), layerstate2(i)
+			Next
+			rhino.EnableRedraw True
+			Exit Sub
+		End If
+		
+		strobjlay = rhino.ObjectLayer(strobject)
+		
+		If isnull(strobjlay) Then
+			rhino.EnableRedraw False
+			For i = 0 To Ubound(arrLayers)
+				rhino.layervisible arrlayers(i), layerstate(i)
+				rhino.layerlocked(arrlayers(i)), layerstate2(i)
+			Next
+			rhino.EnableRedraw True
+			Exit Sub
+		End If
+		
+		rhino.EnableRedraw False
+		For i = 0 To Ubound(arrLayers)
+			rhino.layervisible arrlayers(i), layerstate(i)
+			rhino.layerlocked(arrlayers(i)), layerstate2(i)
+		Next
+		rhino.Print("the name of the selected layer to unhide was: " & strobjlay)
+		
+
+		Dim doBool
+		doBool = True
+		layParent = rhino.ParentLayer(strobjlay)
+		
+		
+		Do While (doBool)
+			
+			
+			
+			If isnull(layParent) Then
+				doBool = False
+				Exit Do
+			ElseIf (Rhino.LayerVisible(layParent) = False) Then
+				Rhino.LayerVisible layParent, True
+			End If
+			rhino.Print("Parent layer: " & layParent)
+
+			layParent = rhino.ParentLayer(layParent)
+		Loop 
+		
+		
+		rhino.LayerVisible strobjlay, True
+		rhino.EnableRedraw True
+		
+		
+	End If
+
+	
+	
+End Sub

@@ -1,0 +1,23 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Wednesday, December 17, 2014 5:27:32 PM
+
+Call Main()
+Sub Main()
+	
+	Dim strcrv
+	Dim ptStart
+	Dim ptEnd
+	
+	
+	strcrv = rhino.GetObject("select curve to get endpoint", 4, True)
+	
+	ptStart = Rhino.CurveStartPoint(strcrv)
+	ptEnd = Rhino.CurveEndPoint(strcrv)
+	rhino.addpoint(ptStart)
+	rhino.addpoint(ptEnd)
+	
+	
+	
+End Sub

@@ -1,0 +1,36 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Tuesday, August 05, 2014 3:32:28 PM
+
+Call Main()
+Sub Main()
+	Dim objlayer
+	Dim objlayer_edit
+	Dim sel
+	Dim obj
+	Dim lay_color
+	Dim sublayer_append
+	
+	sublayer_append = "a"
+	
+	sel = rhino.GetObjects("Select objects",,, True)
+	rhino.Prompt "assigning_layers"
+	rhino.enableredraw False
+	For Each obj In sel
+		
+		objlayer = rhino.ObjectLayer(obj)
+		lay_color = rhino.LayerColor(objlayer)
+		objlayer_edit = objlayer & "::" & sublayer_append
+		
+		
+		If Not rhino.IsLayer(objlayer_edit) Then
+			rhino.AddLayer objlayer_edit, lay_color, False, True
+		End If
+		'rhino.print objlayer_edit
+		rhino.ObjectLayer obj, objlayer_edit
+		
+	Next
+	rhino.enableredraw True
+	
+End Sub

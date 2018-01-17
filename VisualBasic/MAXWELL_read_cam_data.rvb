@@ -1,0 +1,162 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Wednesday, April 09, 2014 10:47:29 AM
+
+Dim ExcelUsedRows
+Call Main()
+Sub Main()
+
+	Dim arr_NamedViews
+	Dim str_currview
+	Dim mx_data
+	Dim i,j
+	Dim str_viewName
+	Dim Maxwell
+		
+	Dim mx_DoY
+	Dim mx_ToD
+	Dim mx_Alpha
+	Dim mx_Opacity
+	Dim mx_sceneRotation
+	Dim Layer_visibility_set
+	Dim str_View
+	
+	Set Maxwell = CreateObject("Maxwell.Script.ScriptObject")
+	mx_data = ReadExcelFile("W:\WORKSPACE\CY\xls\140408-RENDER_CAMERAS.xlsx")
+	str_currview = rhino.CurrentView
+	
+	arr_NamedViews = Rhino.NamedViews()
+	
+	rhino.Print str_currview
+	
+	For i = 1 To (ExcelUsedRows - 1)
+		str_viewName = mx_data(i, 1)
+		
+		If str_viewName = str_currview Then
+			j = i
+			rhino.Print str_viewName
+			rhino.print i
+		End If
+
+	Next
+	
+	mx_DoY = mx_data(j, 2)
+	mx_ToD = mx_data(j, 3)
+	mx_Alpha = mx_data(j, 4)
+	mx_Opacity = mx_data(j, 5)	
+	mx_sceneRotation = mx_data(j, 6)
+	
+	Maxwell.DateAndTime.DayOfYear = mx_DoY
+	Maxwell.DateAndTime.TimeOfDay = mx_ToD
+	Maxwell.Channels.DoAlpha = mx_Alpha
+	Maxwell.Channels.DoOpaque = mx_Opacity
+	Maxwell.Environment.sceneRotation = mx_sceneRotation
+	
+	
+	'	
+	'	For Each render_i In arr_render_num
+	'
+	'		View_num = render_i	
+	'			
+	'		'	rhino.Print View_num
+	'		str_viewName = mx_data(View_num, 1)
+	'		mx_DoY = mx_data(View_num, 2)
+	'		mx_ToD = mx_data(View_num, 3)
+	'		mx_Alpha = mx_data(View_num, 4)
+	'		mx_Opacity = mx_data(View_num, 5)	
+	'		mx_sceneRotation = mx_data(View_num, 6)
+	'	
+	'		Rhino.RestoreNamedView str_viewName
+	'
+	'		Maxwell.DateAndTime.DayOfYear = mx_DoY
+	'		Maxwell.DateAndTime.TimeOfDay = mx_ToD
+	'		Maxwell.Channels.DoAlpha = mx_Alpha
+	'		Maxwell.Channels.DoOpaque = mx_Opacity
+	'		Maxwell.Environment.sceneRotation = mx_sceneRotation
+	'
+	'		Maxwell.Rendering.RenderToMxcl()
+	'		Rhino.Print str_viewName & " sent out to render"
+	'		Rhino.Sleep(10000)
+	'		
+	'		
+	'	Next
+	
+	
+End Sub
+
+
+
+
+Function ReadExcelFile(ByVal strFile)
+ 
+	' Local variable declarations
+	Dim objExcel, objSheet, objCells
+	Dim nUsedRows, nUsedCols, nTop, nLeft, nRow, nCol
+	Dim arrSheet()
+ 
+	' Default return value 
+	ReadExcelFile = Null
+ 
+	' Create the Excel object
+	On Error Resume Next
+	Set objExcel = CreateObject("Excel.Application")
+	If (Err.Number <> 0) Then
+		Exit Function
+	End If
+ 
+	' Don't display any alert messages
+	objExcel.DisplayAlerts = 0  
+ 
+	' Open the document as read-only
+	On Error Resume Next
+	Call objExcel.Workbooks.Open(strFile, False, True)
+	If (Err.Number <> 0) Then
+		Exit Function
+	End If
+ 
+	' If you wanted to read all sheets, you could call
+	' objExcel.Worksheets.Count to get the number of sheets
+	' and the loop through each one. But in this example, we
+	' will just read the first sheet.
+	Set objSheet = objExcel.ActiveWorkbook.Worksheets(1)
+ 
+	' Get the number of used rows
+	nUsedRows = objSheet.UsedRange.Rows.Count
+ 
+	' Get the number of used columns
+	nUsedCols = objSheet.UsedRange.Columns.Count
+ 
+	' Get the topmost row that has data
+	nTop = objSheet.UsedRange.Row
+ 
+	' Get leftmost column that has data
+	nLeft = objSheet.UsedRange.Column
+
+	' Get the used cells
+	Set objCells = objSheet.Cells
+ 
+	' Dimension the sheet array
+	ReDim arrSheet(nUsedRows - 1, nUsedCols - 1)
+	RowCount = nUsedRows - 1
+	ColCount = nUsedCols - 1
+	' Loop through each row 
+	For nRow = 0 To (nUsedRows - 1)
+		' Loop through each column 
+		For nCol = 0 To (nUsedCols - 1)
+			' Add the cell value to the sheet array 
+			arrSheet(nRow, nCol) = objCells(nRow + nTop, nCol + nLeft).Value
+		Next
+	Next
+ 
+	' Close the workbook without saving
+	Call objExcel.ActiveWorkbook.Close(False)
+ 
+	' Quit Excel
+	objExcel.Application.Quit
+ 
+	' Return the sheet data to the caller
+	ExcelUsedRows = nUsedRows
+	ReadExcelFile = arrSheet
+ 
+End Function

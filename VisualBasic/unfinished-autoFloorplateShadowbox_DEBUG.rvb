@@ -1,0 +1,95 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Monday, 03 June 2013 11:48:57
+
+Call Main()
+Sub Main()
+
+	Dim strCrvs,origCrv, dirPt,OffsetAmount, OffsetCurve
+	
+	Dim Line_ShadowBox
+	Dim Line_MullionEdge
+
+
+	'''''''TODO:'''''''
+	''''add layer separation script'''''
+	
+	'''PARAMETERS'''
+	Dim Mullion_Separation
+	Dim Mullion_Depth
+	Dim Mullion_Height
+	Dim Slab_Height
+	Dim Mullion_Edge
+	
+	Mullion_Separation = 100.0
+	Mullion_Depth = 150.0
+	Mullion_Height = 75.0
+	Slab_Height = 1300.0
+		
+	Dim arrMullionCrvs(1)
+	Dim MullionSrf
+	Dim SlabSrf
+	Dim Vector_Curve_MullionH
+	Dim Vector_Curve_MullionBot
+	Dim Vector_Curve_ShadowBox_H
+	Vector_Curve_MullionH = rhino.AddLine(Array(0, 0, 0), Array(0, 0, Mullion_Height * -1))
+	Vector_Curve_MullionBot = rhino.AddLine(Array(0, 0, 0), Array(0, 0, (Slab_Height * -1) + (Mullion_Height)))
+	Vector_Curve_ShadowBox_H = rhino.AddLine(Array(0, 0, 0), Array(0, 0, Slab_Height * -1))
+		
+	
+	Dim Mullion_Polysrf
+	Dim Slab_Polysrf
+	Dim Mullion_Polysrf2
+	Mullion_Edge = Mullion_Separation + Mullion_Depth
+	'IF NOT CLOSED RETRY WITH SAMPLE POINT
+	
+	strCrvs = Rhino.GetObjects("select Closed Curves to Offset", 4,, 1)
+	If Not IsNull(strCrvs) Then
+
+		If Not IsNull(dirPt) Then
+
+			If Not IsNull(OffsetAmount) Then
+				
+				For Each origCrv In strCrvs
+					'dirPt = Rhino.CurveAreaCentroid(origCrv)
+					dirPt = rhino.GetPoint("select point inside the closed curve")
+					dirPt(0) = dirPt
+					If Not IsNull(origCrv) Then
+						Line_ShadowBox = Rhino.OffsetCurve(origCrv, dirPt(0), Mullion_Edge)
+						Line_MullionEdge = Rhino.OffsetCurve(origCrv, dirPt(0), Mullion_Separation)	
+						arrMullionCrvs(0) = Line_MullionEdge(0)
+						
+						arrMullionCrvs(1) = Line_ShadowBox(0)
+						
+						MullionSrf = rhino.AddPlanarSrf(arrMullionCrvs)
+						SlabSrf = rhino.AddPlanarSrf(Line_ShadowBox)
+						
+						Mullion_Polysrf = rhino.ExtrudeSurface(MullionSrf(0), Vector_Curve_MullionH, True)
+						Slab_Polysrf = rhino.ExtrudeSurface(SlabSrf(0), Vector_Curve_ShadowBox_H, True)
+						Mullion_Polysrf = rhino.CopyObject(Mullion_Polysrf, Array(0, 0, 0), Array(0, 0, (Slab_Height * -1) + (Mullion_Height)))
+			
+						rhino.deleteobject(MullionSrf(0))
+						rhino.deleteobject(SlabSrf(0))
+						rhino.deleteobject(Line_MullionEdge(0))
+						rhino.deleteobject(Line_ShadowBox(0))
+												
+						
+						
+						
+					End If
+		
+			
+			
+			
+				Next
+	
+			End If
+		End If
+	End If
+
+
+
+	
+	
+End Sub

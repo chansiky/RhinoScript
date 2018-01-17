@@ -1,0 +1,44 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Friday, August 19, 2016 7:12:05 PM
+
+Call Main()
+Sub Main()
+
+	Dim strlay
+	Dim layMat
+	Dim Layer	
+	Dim LayerNames
+	
+	LayerNames = Rhino.LayerNames
+	
+	Dim rand_Transp
+	
+	Randomize	
+	
+	For Each Layer In LayerNames
+	
+		layMat = Rhino.LayerMaterialIndex(Layer)
+		rand_Transp = randDoubleWithinDomain(0.00, 0.80)
+		rhino.Print rand_Transp
+		rhino.MaterialTransparency layMat, rand_Transp
+		
+	Next
+	
+	
+End Sub
+
+
+Function randIntWithinDomain(ByVal lowerBound, ByVal upperBound)
+	
+	randIntWithinDomain = Int((upperBound - lowerBound + 1) * Rnd + lowerBound)
+		
+End Function
+
+
+Function randDoubleWithinDomain(ByVal lowerBound, ByVal upperBound)
+	
+	randDoubleWithinDomain = ((upperBound - lowerBound) * Rnd + lowerBound)
+		
+End Function

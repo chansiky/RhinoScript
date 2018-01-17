@@ -1,0 +1,30 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Thursday, 20 February 2014 16:55:27
+
+Call Main()
+Sub Main()
+
+	Dim arrcrvs
+	Dim crvlength
+	Dim crv
+	Dim spacing
+	Dim divisions
+	Dim arrpts
+	
+	arrcrvs = rhino.getobjects("select curve", 4, 1)
+	spacing = rhino.GetReal("desired spacing", 4)
+	For Each crv In arrcrvs
+
+		crvlength = rhino.CurveLength(crv)
+		divisions = (crvlength / spacing)
+		rhino.Print(divisions)
+		rhino.Print(spacing)
+		rhino.Print(crvlength)
+		arrpts = rhino.DivideCurve(crv, divisions, True)
+
+	Next
+	
+	
+End Sub

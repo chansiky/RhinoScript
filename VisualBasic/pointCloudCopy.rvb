@@ -1,0 +1,29 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Thursday, 07 August 2014 10:37:01
+
+Call Main()
+Sub Main()
+	Dim obj
+	obj = rhino.GetObjects("select objects to copy",,, True)
+		
+	Dim stpt
+	stpt = rhino.GetPoint("set starting point")
+	'	stpt = rhino.PointCoordinates(stpt)
+	
+	Dim copypoints
+	copypoints = rhino.Getobject("select point cloud", 2)
+	Dim ptcloudpts
+	ptcloudpts = rhino.PointCloudPoints(copypoints)
+	
+
+	Dim point
+	rhino.EnableRedraw False
+	For Each point In ptcloudpts
+		
+		rhino.CopyObjects obj, stpt, point
+	Next
+	rhino.EnableRedraw True
+	
+End Sub

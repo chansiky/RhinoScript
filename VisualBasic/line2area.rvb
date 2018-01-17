@@ -1,0 +1,61 @@
+﻿Option Explicit
+'Script written by <Chan sik Youn>
+'Script copyrighted by <>
+'Script version Saturday, April 03, 2010 3:08:32 PM
+
+Call Main()
+Sub Main()
+
+	Dim line, line2
+	Dim endpoints, endpoints2
+
+	line = rhino.getobject("Select your line",4,True)
+	If Not rhino.Iscurve(line)	Then Exit Sub
+	
+	endpoints = rhino.curvepoints (line)
+	Dim line3: line3 = rhino.AddLine(endpoints(0),endpoints(Ubound(endpoints)))
+
+	Dim area : area = rhino.getreal("What is the desired area, my magnificent?")
+	If IsNull(area) Then Exit Sub
+	
+	Dim scalefactor
+	scalefactor = rhino.Distance(endpoints(0), endpoints(ubound(endpoints)))
+	scalefactor = area/scalefactor
+
+	Dim vector12
+	Dim vectorz
+	Dim vectorperp
+	Dim vectorunitize
+	vectorz = rhino.Vectorcreate(array(0,0,0),array(0,0,1))
+	vector12 = rhino.VectorCreate (endpoints(0),endpoints(Ubound(endpoints)))
+	vectorperp = rhino.VectorRotate (vector12,90,vectorz)
+	vectorperp = rhino.VectorUnitize(vectorperp)
+	vectorperp = rhino.VectorScale(vectorperp,scalefactor)
+	Dim point2
+	Dim point3
+	point2 = rhino.pointadd(vectorperp,endpoints(0))
+	point3 = rhino.PointAdd(vectorperp,endpoints(ubound(endpoints)))
+	
+	Dim point1a
+	Dim point2a
+	Dim point3a
+	Dim point4a
+	
+	point2a = rhino.AddPoint(point2)
+	point3a = rhino.AddPoint(point3)
+	
+	Dim c1, c2, c3
+	
+	c1 = rhino.AddLine(endpoints(0),point2)
+	c2 = rhino.addline(point2,point3)
+	c3 = rhino.addline(point3,endpoints(ubound(endpoints)))
+	
+	Dim rectangle
+	rectangle = rhino.JoinCurves(array(line,c1,c2,c3))
+
+	rhino.DeleteObject (point3a)
+	rhino.DeleteObject(point2a)
+	rhino.DeleteObject(line3)
+	rhino.DeleteObjects(array(c1,c2,c3,line))
+
+		End Sub

@@ -1,0 +1,158 @@
+Option Explicit
+'Set objArrayList = CreateObject("System.Collections.ArrayList")
+
+	'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Tuesday, September 06, 2016 3:18:29 PM
+
+Call Main()
+
+Sub Main()
+	Dim arrObjs
+	Dim arrGroupNames
+	Dim colorCount
+	Dim arrRandomLayers
+	
+	Randomize
+	
+	colorCount = 20
+	arrObjs = rhino.GetObjects("select objects to randomize into layers",,, True)
+
+	arrGroupNames = getAllGroupsFromSelection(arrObjs)'return array of group names
+	arrRandomLayers = createRandomLayers(colorCount)
+	AssignLayerByGroup arrobjs, arrGroupNames, arrRandomLayers 
+	
+End Sub
+
+
+Function getAllGroupsFromSelection(arrObjs)
+	ReDim arrGroupNames(0)
+	Dim groupName
+	Dim i: i = 0
+	Dim obj
+	
+	
+	For Each obj In arrObjs
+		
+		groupName = rhino.ObjectTopGroup(obj)
+		
+		If(groupExistsInArr(groupName, arrGroupNames) = False) Then
+			addObjToArray groupName, arrGroupNames
+		End If	
+		
+	Next
+	
+	printNamesInArray arrGroupNames 
+	
+	getAllGroupsFromSelection = arrGroupNames
+	
+End Function
+
+
+Function groupExistsInArr(ByVal groupName, ByRef arrGroupNames)
+	Dim name
+	For Each name In arrGroupNames
+		If (name = groupName) Then
+			groupExistsInArr = True
+			Exit Function
+		End If	
+	Next 
+	
+	groupExistsInArr = False
+End Function
+
+Function addObjToArray(ByRef objName, ByRef arrObjNames)
+	
+	arrObjNames(Ubound(arrObjNames)) = objName
+	ReDim Preserve arrObjNames(Ubound(arrObjNames)+1)			
+		
+End Function
+
+Function printNamesInArray(ByRef arrGroupNames)
+	Dim name
+	Dim objectType
+	Dim i:i = 0
+	
+	For Each name In arrGroupNames
+		rhino.Print i
+		i = i + 1
+	Next
+End Function
+
+Function randIntWithinDomain(ByVal lowerBound, ByVal upperBound)
+	
+	randIntWithinDomain = Int((upperBound - lowerBound + 1) * Rnd + lowerBound)
+		
+End Function
+
+Function createRandomLayers(ByVal numOfSets)
+	Dim i
+	Dim strlayer
+	ReDim arrRandomLayers(0)
+	
+	
+	For i = 0 To numOfSets
+
+		If Not rhino.IsLayer("Randomset::_" & i + 1) Then
+			rhino.AddLayer "Randomset::_" & i + 1, RGB(Int(256 * Rnd), Int(256 * Rnd), Int(256 * Rnd))
+			
+			'	rhino.LayerColor strlayer, getColor(i)
+			
+			'	createMaterial strlayer, i
+
+		End If	
+		strlayer = "Randomset::_" & i + 1	
+		addObjToArray strlayer, arrRandomLayers
+	Next
+	
+	createRandomLayers = arrRandomLayers
+End Function
+
+Function AssignLayerByGroup(arrObjs, arrGroupNames, arrLayers)
+	Dim Obj
+	Dim arrLayerNames
+	Dim topGroup
+	Dim i
+	arrLayerNames = AssignLayerToGroup(arrGroupNames, arrLayers)
+	
+	For Each Obj In arrObjs
+		topGroup = rhino.ObjectTopGroup(Obj)
+		For i = 0 To Ubound(arrGroupNames)
+			If Not isNull(arrGroupNames(i)) Xor isEmpty(arrGroupNames(i)) Xor isEmpty(arrLayerNames(i)) Then
+				If topGroup = arrGroupNames(i) Then
+					rhino.ObjectLayer Obj, arrLayerNames(i)
+					rhino.Print arrLayerNames(i)
+				End If	
+			End If
+
+			
+		Next
+	Next
+	
+End Function
+
+Function AssignLayerToGroup(arrGroupNames, arrLayers)
+	Dim layer
+	Dim group
+	Dim rand_int
+	Dim total_group_count
+	total_group_count = Ubound(arrGroupNames)
+	Dim arrGroupLayerID()
+	ReDim arrGroupLayerID(total_group_count)
+	Dim i
+	
+
+	For i = 0 To total_group_count
+		rand_int = randIntWithinDomain(0, Ubound(arrLayers))
+		arrGroupLayerID(i) = arrLayers(rand_int)
+	Next
+
+	AssignLayerToGroup = arrGroupLayerID
+
+End Function
+
+Function GetLayerAssignedToGroup(group, hashtable, arrLayers)
+	
+	rhino.Print(hashtable(group).ToString)
+	
+End Function

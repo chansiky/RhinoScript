@@ -1,0 +1,64 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Wednesday, March 26, 2014 5:21:40 PM
+Call Main()
+Sub Main()
+
+	Render_byCurrLayerName()
+	
+End Sub
+
+
+Function Render_byCurrLayerName()
+	Dim Maxwell
+	Dim i
+	Dim Lay_Curr
+	Dim scenePath
+	Dim name
+	Dim prefix
+	'''''''''''''''''''''''''
+	prefix = "150312"
+	'''''''''''''''''''''''''
+	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+	' create the ScriptObject
+	Set Maxwell = CreateObject("Maxwell.Script.ScriptObject")
+	' successfully created?
+	If Maxwell Is Nothing Then
+		Rhino.Print("Unable to create Maxwell.Script.ScriptObject.")
+		Exit Function
+	End If
+	' successfully connected?
+	If Not Maxwell.IsConnected Then
+		Rhino.Print("Unable to connect to the current Maxwell scene.")
+		Exit Function
+	End If
+	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+	
+	scenePath = Maxwell.Output.scenePath
+	Lay_Curr = rhino.CurrentLayer
+	name = Lay_Curr
+	
+	Dim per
+	Dim backslash	
+	Dim str_left
+	Dim str_right
+	Dim new_path
+
+	per = InStr(scenePath, ".")
+	backslash = InStrRev(scenePath, "\")
+	str_left = Left(scenePath, backslash)
+	str_right = Right(scenePath, (len(scenePath) - per + 1))
+	
+	If prefix Then
+		prefix = trim(prefix)
+		Lay_Curr = trim(Lay_Curr)
+		name = Join((Array(prefix, "-", Lay_Curr)), "")
+	End If
+	
+	new_path = Join(Array(str_left, name, str_right))
+	
+	Maxwell.Output.scenePath = new_path
+	Maxwell.Rendering.RenderToMxcl()
+	
+End Function

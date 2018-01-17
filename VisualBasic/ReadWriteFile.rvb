@@ -1,0 +1,89 @@
+'   Original readwrite Functions by Johannes Kuhnen from rhinoscript.org
+'   Modified for flexible number of lines by Chan Youn.
+
+Option Explicit
+
+
+Call Main()
+
+Sub Main()
+	Dim i
+	Dim Filename : Filename = "Goomba"
+	Dim Filecontents
+	
+	WriteTxtFile(Filename)
+	Filecontents = ReadTxtFile(Filename)
+	rhino.Print Ubound(Filecontents)
+	'	
+	For Each i In Filecontents
+		rhino.Print i
+	Next
+
+End Sub
+
+
+Function WriteTxtFile(ByVal strFilename)
+
+	Const ForReading = 1, ForWriting = 2
+	Dim fso, txt, WriteToFile, i
+	
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set txt = fso.CreateTextFile(GetTempDir & "\" & strFilename & ".txt", True) 	'txt-file will be saved on the local temp direction
+
+	txt.WriteLine "Line 1"
+	txt.WriteLine "Line 2"
+	txt.WriteLine "Line 3"
+	txt.WriteLine "Line 4"
+	txt.writeLine "apples"
+	txt.WriteLine "bogus"
+	'...
+	
+	Set txt = fso.OpenTextFile(GetTempDir & "\" & strFilename & ".txt", ForReading)
+	WriteToFile = txt.ReadLine
+	rhino.Print(GetTempDir)
+End Function
+
+Function ReadTxtFile (ByVal strFilename)
+
+	Const ForReading = 1, ForAppending = 8
+	Dim fso, txt, i, linecount : linecount = 0
+	Dim arrResults : ReDim arrResults(0)
+
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set txt = fso.OpenTextFile(GetTempDir & "\" & strFilename & ".txt", ForReading) 	
+	'txt-file will be opened from the local temp direction
+	
+	Do While txt.AtEndOfStream <> True
+		txt.skipline
+		If Not txt.AtEndOfStream Then
+			linecount = linecount + 1
+		End If
+	Loop
+	' loop to acquire number of lines in the text file
+	' rhino.Print linecount
+	
+	
+	Set txt = fso.OpenTextFile(GetTempDir & "\" & strFilename & ".txt", ForReading)
+	
+	For i = 0 To linecount 													
+		arrResults(i) = txt.ReadLine
+		If Not txt.AtEndOfStream Then 
+			ReDim Preserve arrResults(Ubound(arrResults)+1)	
+		End If
+	Next
+	' loop to store all Lines in an array (Line1 = array(0), Line2 = array(1),...)
+
+	ReadTxtFile = arrResults
+	
+End Function
+
+Function GetTempDir()
+
+	Dim WScript, WshShell, objEnv
+	
+	Set WshShell = CreateObject("WScript.Shell")
+	Set objEnv = WshShell.Environment("PROCESS")
+	
+	GetTempDir = objenv("temp")
+	
+End Function

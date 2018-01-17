@@ -1,0 +1,251 @@
+Option Explicit
+'Script written by Chan Youn
+
+Call unlockLayer()
+Sub unlockLayer()
+
+
+	Dim arrLayIds,strlayer,i,currLay, k
+	Dim strObj,strobjlay, strobjlayid
+
+	arrLayIds = rhino.layerIds
+	If isnull(arrLayIds) Then
+		Exit Sub
+	End If
+
+	SaveLayerStates
+	
+	Dim layLocked, layHidden, layID, layColor, avLocked, ID
+	layID = ReadTxtFile("LayerIds")
+	layLocked = ReadTxtFile("LayerLocked")
+	layColor = ReadTxtFile("LayerColor")
+	avLocked = ReadTxtFile("LayerIds")
+
+	'	layVisible = ReadTxtFile("LayerVisible")
+
+	currLay = rhino.CurrentLayer
+	currLay = rhino.LayerId(currLay)
+	
+	If isarray(arrLayIds) Then
+		Rhino.EnableRedraw False
+		'unlock layers
+		
+		'obtain absolute locked status
+		For i = 0 To Ubound(layID)
+			If currLay <> layID(i) Then
+				avLocked(i) = cBool(abLocked(layID(i)))
+			End If
+		Next
+	
+		'reverse absolute locked state
+		For i = 0 To Ubound(layID)
+			If currLay <> layID(i) Then
+				rhino.layerlocked(layID(i)), Not avLocked(i)
+			End If
+		Next
+	
+		'unlock all parent of unlocked layers
+		For i = 0 To Ubound(layID)
+			If currLay <> layID(i) And layLocked(i) Then
+				unlockparent(LayID(i))
+			End If
+		Next
+		
+		'shade all locked layers grey
+		For i = 0 To Ubound(layID)
+			If rhino.layerlocked(layID(i)) Then
+				Rhino.LayerColor layID(i), 4276545
+			End If
+		Next	
+		Rhino.EnableRedraw True
+		
+		strObj = rhino.GetObject("select object on layer to unlock (Esc to cancel)")
+	
+		Rhino.EnableRedraw False
+		
+		'relock layers if null
+		If isnull(strObj) Then
+			RestoreLayerStates
+			Rhino.EnableRedraw True
+			Exit Sub
+		End If
+		
+		strobjlay = rhino.ObjectLayer(strObj)
+		If isnull(strobjlay) Then
+			RestoreLayerStates
+			Rhino.EnableRedraw True
+			Exit Sub
+		End If
+	
+		strobjlay = Rhino.LayerId(strobjlay)
+	
+		'sets boolean value of the chosen layer to be on.
+		For i=0 To Ubound(layID)
+			If layID(i) = strobjlay Then
+				layLocked(i) = False
+			End If
+		Next
+	
+		'resets layer locked & color states
+		For i = 0 To Ubound(layID)
+			Rhino.LayerLocked layID(i), layLocked(i)
+			Rhino.LayerColor layID(i), laycolor(i) * 1
+		Next
+		rhino.Print(rhino.LayerName(strobjlay) & " --> & all parent layers set to unlocked")
+		'unlock parent layers of chosen layer
+		unlockparent(strobjlay)
+		
+		Rhino.EnableRedraw True	
+	End If
+				
+End Sub
+
+
+
+Function WriteTxtFile(ByVal strFilename, ByVal arrText)
+
+	Const ForReading = 1, ForWriting = 2
+	Dim fso, txt, WriteToFile, i
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set txt = fso.CreateTextFile(GetTempDir & "\" & strFilename & ".txt", True) 	'txt-file will be saved on the local temp direction
+
+	For i = 0 To Ubound(arrText)
+		txt.WriteLine arrText(i)
+	Next
+	
+	Set txt = fso.OpenTextFile(GetTempDir & "\" & strFilename & ".txt", ForReading)
+	WriteToFile = txt.ReadLine
+	'	rhino.Print(GetTempDir)
+End Function
+
+Function ReadTxtFile (ByVal strFilename)
+
+	Const ForReading = 1, ForAppending = 8
+	Dim fso, txt, i, linecount : linecount = 0
+	Dim arrResults : ReDim arrResults(0)
+
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set txt = fso.OpenTextFile(GetTempDir & "\" & strFilename & ".txt", ForReading) 	'txt-file will be opened from the local temp direction
+	
+	Do While txt.AtEndOfStream <> True
+		txt.skipline
+		If Not txt.AtEndOfStream Then
+			linecount = linecount + 1
+		End If
+	Loop	
+	'	rhino.Print linecount
+	Set txt = fso.OpenTextFile(GetTempDir & "\" & strFilename & ".txt", ForReading)
+	
+	For i = 0 To linecount	' loop to store all Lines in an array (Line1 = array(0), Line2 = array(1),...)
+		arrResults(i) = txt.ReadLine
+		If Not txt.AtEndOfStream Then 
+			ReDim Preserve arrResults(Ubound(arrResults)+1)
+		End If
+	Next
+	
+	ReadTxtFile = arrResults
+	
+End Function
+
+Function GetTempDir()
+
+	Dim WScript, WshShell, objEnv
+	
+	Set WshShell = CreateObject("WScript.Shell")
+	Set objEnv = WshShell.Environment("PROCESS")
+	
+	GetTempDir = objenv("temp")
+	
+End Function
+
+Function SaveLayerStates()
+	
+	Dim i, ID
+	Dim arrLayId
+
+	arrLayID = rhino.LayerIds()
+	
+	ReDim layerLocked(Ubound(arrLayID))
+	ReDim layerVisible(Ubound(arrLayID))
+	ReDim layerNames(Ubound(arrLayID))
+	ReDim layerColor(Ubound(arrLayID))
+	
+	Call WriteTxtFile("LayerIds", arrLayID)
+	
+	i = 0
+	For Each ID In arrLayID
+		layerlocked(i) = rhino.layerlocked(ID)
+		layerVisible(i) = rhino.layerVisible(ID)
+		layerNames(i) = rhino.layerName(ID)
+		layerColor(i) = rhino.LayerColor(ID)
+		i = i + 1
+	Next
+	Call WriteTxtFile("LayerLocked", layerlocked)
+	Call WriteTxtFile("LayerVisible", layerVisible)
+	Call WriteTxtFile("LayerNames", layerNames)
+	Call WriteTxtFile("LayerColor", layerColor)
+		
+End Function
+
+Function RestoreLayerStates()
+	
+	Dim layID, layLocked, layVis, layColor, i
+			
+	layID = ReadTxtFile("LayerIds")
+	layLocked = ReadTxtFile("LayerLocked")
+	layVis = ReadTxtFile("LayerVisible")
+	layColor = ReadTxtFile("LayerColor")
+	
+	For i = 0 To Ubound(layID)
+		Rhino.LayerLocked layID(i), layLocked(i)
+		Rhino.LayerVisible layID(i), layVis(i)
+		Rhino.LayerColor layID(i), layColor(i) * 1
+	Next
+
+End Function
+
+Function UnlockParent(ByVal layID)
+	
+	Dim Layer
+	Dim Locked
+	
+	Layer = Rhino.ParentLayer(layID)
+	
+	If IsNull(Layer) Then
+		Exit Function
+	Else 
+		Locked = rhino.LayerLocked(Layer)
+		If Locked Then 'unlock
+			rhino.LayerLocked Layer, False
+			'recursive unlock parent
+			UnlockParent(Layer)
+		End If
+	End If
+	
+End Function
+
+Function abLocked(ByVal LayID)
+
+	Dim pLayer
+	Dim Locked	
+	pLayer = Rhino.ParentLayer(layID)
+	Locked = rhino.LayerLocked(LayID)
+	If Locked Then
+		'	rhino.Print(LayID) & "-True"
+		abLocked = True
+	Else
+
+		If IsNull(pLayer) Then
+			'		rhino.Print(LayID) & "-False"
+			abLocked = False
+			Exit Function
+		Else 
+			If Not IsNull(pLayer) Then
+				'		rhino.Print "c"
+				abLocked = abLocked(pLayer)
+			End If
+		
+		End If
+		
+	End If
+End Function

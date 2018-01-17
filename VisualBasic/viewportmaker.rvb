@@ -1,0 +1,30 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Saturday, 05 March 2011 11:25:01
+
+Call Main()
+Sub Main()
+	Dim viewport
+	rhino.command "_NewViewport"
+	rhino.Command "_SetView _W _L"
+	
+	rhino.command "_NewViewport"
+	rhino.Command "_SetView _W _B"
+	
+	rhino.command "_NewViewport"
+	rhino.Command "_SetView _W _A"
+	
+	rhino.command "_NewViewport"
+	rhino.Command "_SetView _W _P"
+	
+	viewport = rhino.currentview
+	rhino.renameview viewport,"view1"
+	
+	rhino.command "_NewViewport"
+	rhino.Command "_SetView _W _P"
+	
+	viewport = rhino.currentview
+	rhino.renameview viewport,"view2"
+	
+End Sub

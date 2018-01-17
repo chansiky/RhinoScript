@@ -1,0 +1,46 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Friday, June 13, 2014 11:09:37 AM
+
+Call Main()
+Sub Main()
+
+	Dim lngRGB
+
+	Dim triangle
+	Dim i
+	
+	Dim pt1,pt2,pt3
+	Dim arrPts 
+	Dim Iterations
+	Dim maxHue, HueValue
+	
+	Iterations = 100
+	
+	
+	
+	
+	For i = 0 To Iterations
+		pt1 = Array(0 + i, 0, 0)
+		pt2 = Array(0.5 + i, 0, 0)
+		pt3 = Array(0.5 + i, 0.5, 0)
+	
+		HueValue = (360 / Iterations) * i
+		rhino.Print HueValue
+		arrPts = Array(pt1, pt2, pt3)
+		
+		triangle = rhino.addSrfPt(arrPts)
+		lngRGB = Rhino.ColorHSVToRGB(Array(HueValue, 100, 100))
+
+		rhino.objectcolor triangle, lngRGB
+	
+	Next
+	
+
+
+	
+	
+	
+	
+End Sub

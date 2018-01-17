@@ -1,0 +1,85 @@
+Option Explicit
+'Script written by Chan Youn
+
+Call Main()
+Sub Main()
+
+	Dim i
+	Dim arrlayers,strlayer
+	Dim strobject,strobjlay
+	Dim strobject2, strobjlay2
+	Dim curlay
+	
+	arrLayers = rhino.layernames
+	If isnull(arrlayers) Then
+		Exit Sub
+	End If
+	''get layer status ''and unlock all layers
+	If isarray(arrlayers) Then
+		ReDim layerstate(Ubound(arrLayers))
+		For i = 0 To Ubound(arrLayers)
+			layerstate(i) = rhino.layerlocked(arrlayers(i))
+			rhino.layerlocked(arrlayers(i)), False
+		Next
+		''select layer
+		strobject = rhino.GetObject("select object on layer to hide",, True)
+		
+		If isnull(strobject) Then
+			For i = 0 To Ubound(arrLayers)
+				rhino.layerlocked arrlayers(i), layerstate(i)
+			Next
+			Exit Sub
+		End If
+		
+		strobjlay = rhino.ObjectLayer(strobject)
+		
+		''''''changes current layer to switch layer if the layer that user wants to hide is the current layer
+		curlay = rhino.currentlayer
+		If curlay = strobjlay Then
+			
+			If Not rhino.IsLayer("z_SWITCH") Then
+				strlayer = rhino.AddLayer("z_SWITCH", RGB(140, 255, 0))
+			End If
+	
+			If rhino.IsLayer("z_SWITCH") Then
+				If curlay <> "z_SWITCH" Then
+					rhino.CurrentLayer "z_SWITCH"
+					rhino.Print "layer changed to z_SWITCH because the selected layer was current"
+				End If
+				If curlay = "z_SWITCH" Then
+					strobject2 = rhino.GetObject("z_SWITCH is the current layer. Select object on the desired new current layer")
+					strobjlay2 = rhino.ObjectLayer(strobject2)
+					rhino.CurrentLayer strobjlay2
+				End If
+				
+			End If
+				
+
+			
+		End If
+		
+		
+		
+		If isnull(strobjlay) Then
+			For i = 0 To Ubound(arrLayers)
+				rhino.layerlocked arrlayers(i), layerstate(i)
+			Next
+			Exit Sub
+		End If
+		
+		
+		''relocklayers
+		For i = 0 To Ubound(arrLayers)
+			rhino.layerlocked arrlayers(i), layerstate(i)
+		Next
+		''unhide selected layer
+
+		rhino.layervisible strobjlay, False
+		
+	End If
+
+	
+
+	
+	
+End Sub

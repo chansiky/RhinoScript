@@ -1,0 +1,43 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Thursday, March 10, 2016 11:10:58 AM
+
+Call Main()
+Sub Main()
+	Dim each_scale
+	Dim Objs
+	Dim Obj
+	Dim Obj_center
+	Dim Scale_factor
+	Dim Output_Objs
+	Dim Obj_center_point
+	
+	'Objs = rhino.GetObjects("select objects to scale in z", 16,, True)
+	Objs = rhino.GetObjects("select objects to scale in z", 8,, True)
+	Scale_factor = rhino.getreal("Enter Scale Factor")
+	
+	Dim i
+	i = 0
+	For Each Obj In Objs
+		i = i + 1
+		rhino.Print("scaling object " & i)
+		'Obj_center = rhino.surfacevolumecentroid(Obj)
+		If Not IsNull(Obj) Then
+			Obj_center = rhino.surfaceareacentroid(Obj)
+			
+			If Not IsNull(Obj_center) Then
+				Output_Objs = rhino.ScaleObject(Obj, Obj_center(0), Array(Scale_factor, 1.0, 1.0))
+			Else
+				rhino.Print("object scaling of " & i & " has failed")
+			End If
+		Else
+			rhino.Print("object " & i & " was Null")
+		End If
+				
+		'	Output_Objs = rhino.ScaleObject(Obj, Obj_center(0), Array(1.0, 1.0, Scale_factor))
+		
+		
+	Next
+	
+End Sub

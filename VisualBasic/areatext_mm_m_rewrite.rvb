@@ -1,0 +1,59 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Thursday, May 06, 2010 10:21:34 AM
+
+Call Main()
+Sub Main()
+	
+	Dim textsize : textsize = 1000
+	
+	
+	Dim Objs
+	Objs = rhino.GetObjects("select closed curves or surfaces", 12,, True)
+	Dim text
+	Dim strobj
+	Dim unitname
+	Dim area
+	Dim i
+	i = 0
+	Dim convert
+	'convert = 1000000 for mm^2 > m^2
+	convert = 1000000
+	Dim finalval
+	'unitname = rhino.UnitSystemName(False, False, True)
+	unitname = "m"
+	Dim point
+
+	Dim CenterPoint
+
+	For Each strobj In Objs
+		
+		'BOTTOM LEFT
+		'CenterPoint = rhino.CurveClosestPoint(strobject,array(0,0,0))
+		'clpoint = rhino.curveevaluate(strobject,CenterPoint,1)(0)
+		
+		'CENTER
+		If Rhino.IsCurve(strobj) Then
+
+			CenterPoint = Rhino.CurveAreaCentroid(strobj)
+			area = rhino.curvearea(strobj)
+			finalval = area(0) / convert
+			rhino.Print(finalval)
+			text = rhino.addtext(Round(finalval, 2) & space(1) & unitname & "^2", CenterPoint(0), textsize,,, 4)
+			'text = rhino.addtext(Round(rhino.curvearea(strobject)(0),1)& space(1),clpoint,1)
+		End If
+		
+		If Rhino.IsSurface(strobj) Then
+			CenterPoint = Rhino.SurfaceAreaCentroid(strObj)
+			area = Rhino.SurfaceArea(strObj)
+			finalval = area(0) / convert
+			rhino.Print(finalval)
+			text = rhino.addtext(Round(finalval, 2) & space(1) & unitname & "^2", CenterPoint(0), textsize,,, 4)
+			'text = rhino.addtext(Round(rhino.curvearea(strobject)(0),1)& space(1),clpoint,1)
+		End If
+		
+
+	Next
+	
+End Sub

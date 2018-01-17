@@ -1,0 +1,45 @@
+Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Tuesday, May 21, 2013 7:05:02 PM
+
+Call Main()
+Sub Main()
+
+	Dim strMesh, nFaceCount, boolRedTrue
+	Dim i, j, k
+	i = 0
+	j = 0
+	k = 0
+	Dim arrMeshes
+	
+	arrMeshes = Rhino.GetObjects("select Meshes to reduce", 32)
+	
+	For Each strMesh In arrMeshes
+		k = k + 1
+	Next
+	
+	For Each strMesh In arrMeshes
+		If Not IsNull(strMesh) Then
+
+			nFaceCount = Rhino.MeshFaceCount(strMesh)
+
+			boolRedTrue = Rhino.ReduceMesh(strMesh, (nFaceCount / 2))
+			
+			If boolRedTrue Then
+				Rhino.ObjectLayer strMesh, "z_4"
+				i = i + 1
+			Else
+				Rhino.ObjectLayer strMesh, "z_5"
+				j = j + 1
+			End If
+			
+			Rhino.Print "Good: " & i & ";  Bad: " & j & ";  Total: " & k & " ; " & (((i + j) / k) * 100) & "% Complete"
+
+
+		End If
+
+	Next
+	
+	
+End Sub
