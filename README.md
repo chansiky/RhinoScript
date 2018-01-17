@@ -1,2 +1,2 @@
-# Rhinosciprts
-A bunch of small scripts
+# RhinoScript
+Series of scripts useful for automating CAD work.
