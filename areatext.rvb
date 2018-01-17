@@ -1,0 +1,36 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Thursday, May 06, 2010 10:21:34 AM
+
+Call Main()
+Sub Main()
+	
+	Dim textsize : textsize = 1000
+	
+	
+	Dim polygon
+	polygon = rhino.GetObjects("select closed curves",4,,True)
+	Dim text
+	Dim strobject
+	Dim unitname
+	unitname = rhino.UnitSystemName(False,False,True)
+	
+	Dim dblparam, clpoint
+
+	For Each strobject In polygon
+		
+		'BOTTOM LEFT
+		'dblparam = rhino.CurveClosestPoint(strobject,array(0,0,0))
+		'clpoint = rhino.curveevaluate(strobject,dblparam,1)(0)
+		
+		'CENTER
+		dblparam = rhino.CurveAreaCentroid(polygon)
+		clpoint = dblparam(0)
+
+		
+		text = rhino.addtext(Round(rhino.curvearea(strobject)(0),1)& space(1) & unitname & "^2",clpoint,textsize)
+		'text = rhino.addtext(Round(rhino.curvearea(strobject)(0),1)& space(1),clpoint,1)
+	Next
+	
+End Sub
