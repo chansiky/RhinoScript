@@ -65,6 +65,8 @@ public class Script_Instance : GH_ScriptInstance
   /// Output parameters as ref arguments. You don't have to assign output parameters,
   /// they will have a default value.
   /// </summary>
+  
+  ///remember to make the type hint into a "List" and "Double"
   private void RunScript(List<double> x, ref object min, ref object min_item, ref object max, ref object max_item)
   {
 
