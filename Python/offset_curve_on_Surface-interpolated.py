@@ -1,4 +1,7 @@
 import rhinoscriptsyntax as rs
+#in progress, 
+#only curves will be created, 
+#user should use Rhino command 'pull' to get the curve directly on the surface 
 
 def offsetCrvEndPt(curve,dist):
     startPt = rs.CurveStartPoint(curve)
@@ -20,10 +23,9 @@ def offsetCrvEndPt(curve,dist):
 
 def offsetCurveOnSurface():
     curve = rs.GetObject("sel curve",4)
-    num = 100
+    num = rs.GetReal("Offset Distance:",200)
     points = rs.DivideCurve(curve,num)
     surface = rs.GetObject("sel surface", 8)
-    offset_dist = 150
     offset_ptsA0 = []
     offset_ptsA1 = []
     offset_ptsB0 = []
@@ -35,13 +37,13 @@ def offsetCurveOnSurface():
         crv = rs.ExtractIsoCurve(surface,parameter, 2)
         #create sphere at end
         try:
-            offsetEndPtsA = offsetCrvEndPt(crv[0],offset_dist)
+            offsetEndPtsA = offsetCrvEndPt(crv[0],num)
             rs.DeleteObject(crv[0])
         except IndexError:
             offsetEndPtsA = None
             
         try:
-            offsetEndPtsB = offsetCrvEndPt(crv[1],offset_dist)
+            offsetEndPtsB = offsetCrvEndPt(crv[1],num)
             rs.DeleteObject(crv[1])
         except IndexError:
             offsetEndPtsB = None
@@ -59,10 +61,5 @@ def offsetCurveOnSurface():
     rs.AddInterpCurve(offset_ptsA1)
     rs.AddInterpCurve(offset_ptsB0)
     rs.AddInterpCurve(offset_ptsB1)
-    
-    #rs.AddInterpCrvOnSrf(surface,offset_ptsA0);
-    #rs.AddInterpCrvOnSrf(surface,offset_ptsA1);
-    #rs.AddInterpCrvOnSrf(surface,offset_ptsB0);
-    #rs.AddInterpCrvOnSrf(surface,offset_ptsB1);
 
 offsetCurveOnSurface()
